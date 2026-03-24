@@ -1,0 +1,128 @@
+﻿node : D:\portal\inventario\api-nest\node_modules\@babel\core\lib\parser\index.js:74
+En línea: 1 Carácter: 1
++ node index.js 2>&1 | Out-File -FilePath full_error_simple.txt -Encodi ...
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\portal\inven...ser\index.js:74:String) 
+    [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    throw err;
+    ^
+
+SyntaxError: D:\portal\inventario\api-nest\src\app.module.js: Support for the 
+experimental syntax 'decorators' isn't currently enabled (10:1):
+
+[0m [90m  8 |[39m [36mimport[39m { [33mSolicitudesModule[39m } [36mfrom[39m 
+[32m'./solicitudes/solicitudes.module'[39m[33m;[39m
+ [90m  9 |[39m
+[31m[1m>[22m[39m[90m 10 |[39m [33m@[39m[33mModule[39m({
+ [90m    |[39m [31m[1m^[22m[39m
+ [90m 11 |[39m   imports[33m:[39m [
+ [90m 12 |[39m     [33mConfigModule[39m[33m.[39mforRoot({ isGlobal[33m:[39m 
+[36mtrue[39m })[33m,[39m
+ [90m 13 |[39m     [33mDatabaseModule[39m[33m,[39m[0m
+
+Add @babel/plugin-proposal-decorators 
+(https://github.com/babel/babel/tree/main/packages/babel-plugin-proposal-decorators) 
+to the 'plugins' section of your Babel config to enable transformation.
+If you want to leave it as-is, add @babel/plugin-syntax-decorators 
+(https://github.com/babel/babel/tree/main/packages/babel-plugin-syntax-decorators) to 
+the 'plugins' section to enable parsing.
+
+If you already added the plugin for this syntax to your config, it's possible that 
+your config isn't being loaded.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+
+    at toParseError 
+(D:\portal\inventario\api-nest\node_modules\@babel\parser\src\parse-error.ts:95:45)
+    at Parser.raise (D:\portal\inventario\api-nest\node_modules\@babel\parser\src\token
+izer\index.ts:1504:19)
+    at Parser.expectOnePlugin (D:\portal\inventario\api-nest\node_modules\@babel\parser
+\src\tokenizer\index.ts:1569:18)
+    at Parser.parseDecorator (D:\portal\inventario\api-nest\node_modules\@babel\parser\
+src\parser\statement.ts:792:10)
+    at Parser.parseDecorators (D:\portal\inventario\api-nest\node_modules\@babel\parser
+\src\parser\statement.ts:773:28)
+    at Parser.parseStatementLike (D:\portal\inventario\api-nest\node_modules\@babel\par
+ser\src\parser\statement.ts:480:25)
+    at Parser.parseModuleItem (D:\portal\inventario\api-nest\node_modules\@babel\parser
+\src\parser\statement.ts:419:17)
+    at Parser.parseBlockOrModuleBlockBody (D:\portal\inventario\api-nest\node_modules\@
+babel\parser\src\parser\statement.ts:1443:16)
+    at Parser.parseBlockBody (D:\portal\inventario\api-nest\node_modules\@babel\parser\
+src\parser\statement.ts:1417:10)
+    at Parser.parseProgram (D:\portal\inventario\api-nest\node_modules\@babel\parser\sr
+c\parser\statement.ts:229:10)
+    at Parser.parseTopLevel (D:\portal\inventario\api-nest\node_modules\@babel\parser\s
+rc\parser\statement.ts:203:25)
+    at Parser.parse 
+(D:\portal\inventario\api-nest\node_modules\@babel\parser\src\parser\index.ts:83:25)
+    at parse 
+(D:\portal\inventario\api-nest\node_modules\@babel\parser\src\index.ts:86:38)
+    at parser 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\src\parser\index.ts:28:19)
+    at parser.next (<anonymous>)
+    at normalizeFile (D:\portal\inventario\api-nest\node_modules\@babel\core\src\transf
+ormation\normalize-file.ts:49:24)
+    at normalizeFile.next (<anonymous>)
+    at run (D:\portal\inventario\api-nest\node_modules\@babel\core\src\transformation\i
+ndex.ts:40:36)
+    at run.next (<anonymous>)
+    at transform 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\src\transform.ts:29:20)
+    at transform.next (<anonymous>)
+    at evaluateSync 
+(D:\portal\inventario\api-nest\node_modules\gensync\index.js:251:28)
+    at fn (D:\portal\inventario\api-nest\node_modules\gensync\index.js:89:14)
+    at stopHiding - secret - don't use this - v1 (D:\portal\inventario\api-nest\node_mo
+dules\@babel\core\src\errors\rewrite-stack-trace.ts:99:14)
+    at Object.transformSync 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\src\transform.ts:66:52)
+    at Object.transformSync (D:\portal\inventario\api-nest\node_modules\@babel\register
+\src\worker\transform.cts:97:33)
+    at LocalClient.call (D:\portal\inventario\api-nest\node_modules\@babel\register\src
+\worker\handle-message.cts:19:26)
+    at LocalClient.call (D:\portal\inventario\api-nest\node_modules\@babel\register\src
+\worker-client.cts:95:42)
+    at LocalClient.transform (D:\portal\inventario\api-nest\node_modules\@babel\registe
+r\src\worker-client.cts:31:22)
+    at compile 
+(D:\portal\inventario\api-nest\node_modules\@babel\register\src\hook.cts:66:25)
+    at compileBabel7 
+(D:\portal\inventario\api-nest\node_modules\@babel\register\src\hook.cts:57:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:124:29)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\src\/main.js:2:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12) {
+  code: 'BABEL_PARSE_ERROR',
+  reasonCode: 'MissingOneOfPlugins',
+  loc: Position { line: 10, column: 0, index: 427 },
+  pos: 427,
+  syntaxPlugin: undefined,
+  missingPlugin: [ 'decorators', 'decorators-legacy' ]
+}
+
+Node.js v24.12.0

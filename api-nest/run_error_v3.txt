@@ -1,0 +1,76 @@
+﻿node : D:\portal\inventario\api-nest\src\inventory\inventory.controller.js:18
+En línea: 1 Carácter: 1
++ node index.js 2>&1 | Out-File -FilePath run_error_v3.txt -Encoding ut ...
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\portal\inven...ontroller.js:18:String) 
+    [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    var _getAlmacenes = (0, 
+_asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function 
+_callee(@((0, _common.Query)('pais'))
+                                                                                       
+                               ^
+
+SyntaxError: Invalid or unexpected token
+    at wrapSafe (node:internal/modules/cjs/loader:1692:18)
+    at Module._compile (node:internal/modules/cjs/loader:1735:20)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> 
+(D:\portal\inventario\api-nest\src\inventory\/inventory.module.js:3:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\src\/app.module.js:7:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\src\/main.js:2:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\index.js:2:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object.<anonymous> (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+
+Node.js v24.12.0

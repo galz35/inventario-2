@@ -1,0 +1,134 @@
+﻿node : D:\portal\inventario\api-nest\node_modules\@babel\core\lib\gensync-utils\functio
+nal.js:53
+En línea: 1 Carácter: 1
++ node index.js 2>&1 | Out-File -FilePath full_error.txt -Encoding utf8
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\portal\inven...unctional.js:53:String) 
+    [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    if (result.ok) return result.value;else throw result.value;
+                                            ^
+
+Error: Cannot find module '@babel/plugin-proposal-private-methods'
+Require stack:
+- D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\files\plugins.js
+- D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\files\index.js
+- D:\portal\inventario\api-nest\node_modules\@babel\core\lib\index.js
+- D:\portal\inventario\api-nest\node_modules\@babel\register\lib\worker\babel-core.cjs
+- D:\portal\inventario\api-nest\node_modules\@babel\register\lib\worker\handle-message.
+cjs
+- D:\portal\inventario\api-nest\node_modules\@babel\register\lib\worker-client.cjs
+- D:\portal\inventario\api-nest\node_modules\@babel\register\lib\node.cjs
+- D:\portal\inventario\api-nest\node_modules\@babel\register\lib\nodeWrapper.cjs
+- D:\portal\inventario\api-nest\node_modules\@babel\register\lib\index.cjs
+- D:\portal\inventario\api-nest\index.js
+- Did you mean "@babel/plugin-transform-private-methods"?
+
+Make sure that all the Babel plugins and presets you are using
+are defined as dependencies or devDependencies in your package.json
+file. It's possible that the missing plugin is loaded by a preset
+you are using that forgot to add the plugin to its dependencies: you
+can workaround this problem by explicitly adding the missing package
+to your top-level package.json.
+
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at resolve (node:internal/modules/helpers:163:19)
+    at tryRequireResolve (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\co
+nfig\files\plugins.js:128:11)
+    at resolveStandardizedNameForRequire (D:\portal\inventario\api-nest\node_modules\@b
+abel\core\lib\config\files\plugins.js:162:19)
+    at resolveStandardizedName (D:\portal\inventario\api-nest\node_modules\@babel\core\
+lib\config\files\plugins.js:183:12)
+    at loadPlugin (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\fi
+les\plugins.js:56:7)
+    at loadPlugin.next (<anonymous>)
+    at createDescriptor (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\con
+fig\config-descriptors.js:140:16)
+    at createDescriptor.next (<anonymous>)
+    at evaluateSync 
+(D:\portal\inventario\api-nest\node_modules\gensync\index.js:251:28)
+    at D:\portal\inventario\api-nest\node_modules\gensync\index.js:31:34
+    at Array.map (<anonymous>)
+    at gensync.sync (D:\portal\inventario\api-nest\node_modules\gensync\index.js:31:22)
+    at gensync.all (D:\portal\inventario\api-nest\node_modules\gensync\index.js:210:24)
+    at Generator.next (<anonymous>)
+    at createDescriptors (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\co
+nfig\config-descriptors.js:102:41)
+    at createDescriptors.next (<anonymous>)
+    at createPluginDescriptors (D:\portal\inventario\api-nest\node_modules\@babel\core\
+lib\config\config-descriptors.js:99:17)
+    at createPluginDescriptors.next (<anonymous>)
+    at D:\portal\inventario\api-nest\node_modules\@babel\core\lib\gensync-utils\functio
+nal.js:22:27
+    at Generator.next (<anonymous>)
+    at mergeChainOpts (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\confi
+g\config-chain.js:349:34)
+    at mergeChainOpts.next (<anonymous>)
+    at chainWalker (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\c
+onfig-chain.js:316:14)
+    at chainWalker.next (<anonymous>)
+    at loadFileChain (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config
+\config-chain.js:191:24)
+    at loadFileChain.next (<anonymous>)
+    at buildRootChain (D:\portal\inventario\api-nest\node_modules\@babel\core\lib\confi
+g\config-chain.js:108:31)
+    at buildRootChain.next (<anonymous>)
+    at loadPrivatePartialConfig 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\partial.js:72:62)
+    at loadPrivatePartialConfig.next (<anonymous>)
+    at loadFullConfig 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\full.js:36:46)
+    at loadFullConfig.next (<anonymous>)
+    at loadOptionsImpl 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\index.js:52:43)
+    at loadOptionsImpl.next (<anonymous>)
+    at evaluateSync 
+(D:\portal\inventario\api-nest\node_modules\gensync\index.js:251:28)
+    at sync (D:\portal\inventario\api-nest\node_modules\gensync\index.js:89:14)
+    at stopHiding - secret - don't use this - v1 (D:\portal\inventario\api-nest\node_mo
+dules\@babel\core\lib\errors\rewrite-stack-trace.js:47:12)
+    at loadOptionsSync 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\lib\config\index.js:60:78)
+    at OptionManager.init 
+(D:\portal\inventario\api-nest\node_modules\@babel\core\lib\index.js:224:42)
+    at module.exports.transformSync (D:\portal\inventario\api-nest\node_modules\@babel\
+register\lib\worker\transform.cjs:77:44)
+    at LocalClient.handleMessage (D:\portal\inventario\api-nest\node_modules\@babel\reg
+ister\lib\worker\handle-message.cjs:16:26)
+    at LocalClient.<anonymous> (D:\portal\inventario\api-nest\node_modules\@babel\regis
+ter\lib\worker-client.cjs:75:79)
+    at LocalClient.transform (D:\portal\inventario\api-nest\node_modules\@babel\registe
+r\lib\worker-client.cjs:27:47)
+    at compile 
+(D:\portal\inventario\api-nest\node_modules\@babel\register\lib\hook.cjs:44:25)
+    at compileBabel7 
+(D:\portal\inventario\api-nest\node_modules\@babel\register\lib\hook.cjs:36:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:124:29)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\core\\lib\\config\\files\\
+plugins.js',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\core\\lib\\config\\files\\
+index.js',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\core\\lib\\index.js',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\register\\lib\\worker\\bab
+el-core.cjs',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\register\\lib\\worker\\han
+dle-message.cjs',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\register\\lib\\worker-clie
+nt.cjs',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\register\\lib\\node.cjs',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\register\\lib\\nodeWrapper
+.cjs',
+    'D:\\portal\\inventario\\api-nest\\node_modules\\@babel\\register\\lib\\index.cjs',
+    'D:\\portal\\inventario\\api-nest\\index.js'
+  ]
+}
+
+Node.js v24.12.0

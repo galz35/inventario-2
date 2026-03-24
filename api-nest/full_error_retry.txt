@@ -1,0 +1,499 @@
+﻿node : Though the "loose" option was set to "false" in your @babel/preset-env config, 
+it will not be used for @babel/plugin-transform-private-property-in-object since the 
+"loose" mode option was set to "true" for @babel/plugin-transform-class-properties.
+En línea: 1 Carácter: 1
++ node index.js 2>&1 | Out-File -FilePath full_error_retry.txt -Encodin ...
++ ~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Though the "loo...ass-properties.:String) 
+    [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\main.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\main.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.controller.js <your build 
+command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.controller.js <your build 
+command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.service.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\app.service.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\database\database.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\database\database.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\database\database.service.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\database\database.service.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\auth\auth.module.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\auth\auth.module.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\auth\auth.service.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\auth\auth.service.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\auth\auth.controller.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\auth\auth.controller.js <your 
+build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\inventory\inventory.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\inventory\inventory.module.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\inventory\inventory.service.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env 
+BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\inventory\inventory.service.js 
+<your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-property-in-object since the "loose" 
+mode option was set to "true" for @babel/plugin-transform-class-properties.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\inventory\invent
+ory.controller.js <your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+Though the "loose" option was set to "false" in your @babel/preset-env config, it will 
+not be used for @babel/plugin-transform-private-methods since the "loose" mode option 
+was set to "true" for @babel/plugin-transform-private-property-in-object.
+The "loose" option must be the same for @babel/plugin-transform-class-properties, 
+@babel/plugin-transform-private-methods and 
+@babel/plugin-transform-private-property-in-object (when they are enabled): you can 
+silence this warning by explicitly adding
+	["@babel/plugin-transform-private-methods", { "loose": true }]
+to the "plugins" section of your Babel config.
+
+If you already set the same 'loose' mode for these plugins in your config, it's 
+possible that they are enabled multiple times with different options.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the 
+loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=D:\portal\inventario\api-nest\src\inventory\invent
+ory.controller.js <your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+D:\portal\inventario\api-nest\src\inventory\inventory.controller.js:29
+      var _getAlmacenes = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function 
+_callee(@((0, _common.Query)('pais'))
+                                                                                       
+    ^
+
+SyntaxError: Invalid or unexpected token
+    at wrapSafe (node:internal/modules/cjs/loader:1692:18)
+    at Module._compile (node:internal/modules/cjs/loader:1735:20)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> 
+(D:\portal\inventario\api-nest\src\inventory\/inventory.module.js:3:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\src\/app.module.js:7:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\src\/main.js:2:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Module._compile 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:129:24)
+    at node:internal/modules/cjs/loader:1893:10
+    at Object.newLoader [as .js] 
+(D:\portal\inventario\api-nest\node_modules\pirates\lib\index.js:134:7)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\portal\inventario\api-nest\index.js:2:1)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object.<anonymous> (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+
+Node.js v24.12.0
