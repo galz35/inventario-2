@@ -11,11 +11,47 @@ function App() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setInitialized(true);
+    let cancelled = false;
+
+    const bootstrapAuth = async () => {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+        setInitialized(true);
+        return;
+      }
+
+      // Passive SSO Hydration
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/portal-session`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const payload = await response.json();
+          if (payload.status === 'success' && payload.data) {
+            if (!cancelled) {
+              const userData = payload.data;
+              setUser(userData);
+              localStorage.setItem('user', JSON.stringify(userData));
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Portal session bootstrap failed:', err);
+      } finally {
+        if (!cancelled) {
+          setInitialized(true);
+        }
+      }
+    };
+
+    void bootstrapAuth();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleLoginSuccess = (userData) => {

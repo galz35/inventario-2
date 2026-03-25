@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, Dependencies, Bind } from '@nestjs/common';
+import { Controller, Post, Body, Res, Req, Dependencies, Bind } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('api/v1/auth')
@@ -58,6 +58,37 @@ export class AuthController {
       data: {
         carnet: user.carnet,
         pais: user.pais,
+      }
+    });
+  }
+  @Post('portal-session')
+  @Bind(Req(), Res())
+  async portalSession(req, res) {
+    const sid = req.cookies?.portal_sid;
+    if (!sid) {
+      return res.status(401).json({ status: 'error', message: 'Sesión de Portal no detectada' });
+    }
+
+    const user = await this.authService.validatePortalSession(sid);
+    if (!user) {
+      return res.status(401).json({ status: 'error', message: 'Sesión de Portal inválida o caducada' });
+    }
+
+    const cookieOptions = { 
+      httpOnly: true, 
+      sameSite: 'lax', 
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60 * 1000 
+    };
+    res.cookie('user_carnet', user.carnet, cookieOptions);
+    res.cookie('user_pais', user.pais, cookieOptions);
+
+    return res.json({
+      status: 'success',
+      data: {
+        carnet: user.carnet,
+        pais: user.pais,
+        nombre: user.nombre
       }
     });
   }

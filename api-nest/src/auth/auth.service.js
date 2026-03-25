@@ -101,4 +101,48 @@ export class AuthService {
       pais: user.pais,
     };
   }
+  async validatePortalSession(sessionId) {
+    if (!sessionId) return null;
+
+    const portalUrl =
+      this.configService.get('PORTAL_API_URL') || 'http://127.0.0.1:3110';
+    try {
+      const response = await axios.post(
+        `${portalUrl.replace(/\/+$/, '')}/api/auth/introspect`,
+        {},
+        {
+          headers: { Cookie: `portal_sid=${sessionId}` },
+        },
+      );
+
+      if (response.data && response.data.authenticated) {
+        const portalUser = response.data.identity || response.data.user;
+        if (!portalUser) {
+          return null;
+        }
+
+        const sql = this.db.getSql();
+        const result = await this.db.query(
+          `SELECT carnet, nombre_completo, pais 
+           FROM dbo.vw_EmpleadosActivos 
+           WHERE carnet = @carnet`,
+          [{ name: 'carnet', type: sql.VarChar, value: portalUser.carnet }]
+        );
+
+        if (result.recordset.length === 0) {
+          return null;
+        }
+
+        const user = result.recordset[0];
+        return {
+          carnet: user.carnet,
+          nombre: user.nombre_completo,
+          pais: user.pais,
+        };
+      }
+    } catch (err) {
+      console.error('Error validating portal session in Inventario:', err.message);
+    }
+    return null;
+  }
 }
