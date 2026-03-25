@@ -4,6 +4,8 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import SSOHandler from './pages/SSOHandler';
 
+import { APP_BASE } from './runtime';
+
 function App() {
   const [user, setUser] = useState(null);
   const [initialized, setInitialized] = useState(false);
@@ -29,7 +31,7 @@ function App() {
   if (!initialized) return null;
 
   return (
-    <Router>
+    <Router basename={APP_BASE}>
       <Routes>
         {/* Ruta para capturar el SSO del Portal Central */}
         <Route 
