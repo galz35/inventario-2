@@ -26,12 +26,15 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    window.location.href = PORTAL_URL;
   };
+
+  const basename = APP_BASE === "/" ? undefined : APP_BASE.replace(/\/$/, "");
 
   if (!initialized) return null;
 
   return (
-    <Router basename={APP_BASE}>
+    <Router basename={basename}>
       <Routes>
         {/* Ruta para capturar el SSO del Portal Central */}
         <Route 

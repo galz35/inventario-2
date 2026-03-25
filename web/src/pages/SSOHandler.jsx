@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import api from '../api';
+import { PORTAL_URL } from '../runtime';
 
 const SSOHandler = ({ onLoginSuccess }) => {
   const [searchParams] = useSearchParams();
@@ -71,8 +72,8 @@ const SSOHandler = ({ onLoginSuccess }) => {
         )}
 
         {error && (
-          <button className="btn-back" onClick={() => navigate('/login')}>
-            Volver al inicio manual
+          <button className="btn-back" onClick={() => window.location.href = PORTAL_URL}>
+            Volver al Portal Central
           </button>
         )}
       </motion.div>
