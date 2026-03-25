@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Loader2, Boxes, Activity } from 'lucide-react';
+import { PORTAL_URL } from '../runtime';
 
 const LoginPage = () => {
   useEffect(() => {
     // Redirección automática al Portal Central (única fuente de identidad)
     console.log("[Portal Auth] Redirigiendo al servidor de identidad corporativa...");
     const ssoReturnUrl = `${window.location.origin}/auth/sso`;
-    window.location.href = `http://localhost:5173/login-empleado?returnUrl=${encodeURIComponent(ssoReturnUrl)}`;
+    window.location.href = `${PORTAL_URL}login-empleado?returnUrl=${encodeURIComponent(ssoReturnUrl)}`;
   }, []);
 
   return (

@@ -24,7 +24,7 @@ import {
   Trash2,
   Send
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../api';
 
 // --- Global UI Components ---
 
@@ -81,10 +81,10 @@ const Dashboard = ({ user, onLogout }) => {
 
   const fetchInit = async () => {
     try {
-        const resA = await axios.get(`/api/v1/almacenes?pais=${user.pais}`);
+        const resA = await api.get(`/almacenes?pais=${user.pais}`);
         setAlmacenes(resA.data.data);
         if (resA.data.data.length > 0) setSelectedAlm(resA.data.data[0].IdAlmacen);
-        const resB = await axios.get('/api/v1/articulos');
+        const resB = await api.get('/articulos');
         setArticulosBase(resB.data.data);
     } catch (e) { console.error(e); }
   };
@@ -94,18 +94,18 @@ const Dashboard = ({ user, onLogout }) => {
     try {
         if (activeTab === 'dashboard' || activeTab === 'inventory') {
           const [rI, rS] = await Promise.all([
-            axios.get(`/api/v1/inventario?idAlmacen=${selectedAlm}`),
-            axios.get(`/api/v1/solicitudes/stats?idAlmacen=${selectedAlm}`)
+            api.get(`/inventario?idAlmacen=${selectedAlm}`),
+            api.get(`/solicitudes/stats?idAlmacen=${selectedAlm}`)
           ]);
           setInventory(rI.data.data);
           setStats(rS.data.data);
         }
         if (activeTab === 'solicitudes') {
-          const rR = await axios.get(`/api/v1/solicitudes?pais=${user.pais}`);
+          const rR = await api.get(`/solicitudes?pais=${user.pais}`);
           setRequests(rR.data.data);
         }
         if (activeTab === 'kardex') {
-          const rK = await axios.get(`/api/v1/kardex?idAlmacen=${selectedAlm}&desde=2024-01-01`);
+          const rK = await api.get(`/kardex?idAlmacen=${selectedAlm}&desde=2024-01-01`);
           setKardex(rK.data.data);
         }
     } catch (e) { console.error(e); }
@@ -114,7 +114,7 @@ const Dashboard = ({ user, onLogout }) => {
 
   const submitSolicitud = async () => {
     if (!form.motivo || form.detalles.length === 0) return alert('Complete el formulario');
-    await axios.post('/api/v1/solicitudes', {
+    await api.post('/solicitudes', {
       empleadoCarnet: user.carnet,
       motivo: form.motivo,
       detalles: form.detalles

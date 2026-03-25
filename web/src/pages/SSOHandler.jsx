@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import api from '../api';
 
 const SSOHandler = ({ onLoginSuccess }) => {
   const [searchParams] = useSearchParams();
@@ -21,7 +21,7 @@ const SSOHandler = ({ onLoginSuccess }) => {
     const validateSSO = async () => {
       try {
         setStatus('Sincronizando sesión del Portal...');
-        const response = await axios.post('/api/v1/auth/sso-login', { token });
+        const response = await api.post('/auth/sso-login', { token });
         
         if (response.data.status === 'success') {
           setStatus('¡Acceso concedido! Preparando sistema...');
