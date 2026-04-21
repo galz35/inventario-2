@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import SSOHandler from './pages/SSOHandler';
 
-import { APP_BASE } from './runtime';
+import { APP_BASE, API_BASE, PORTAL_URL } from './runtime';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -23,7 +23,7 @@ function App() {
 
       // Passive SSO Hydration
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/portal-session`, {
+        const response = await fetch(`${API_BASE}/auth/portal-session`, {
           method: 'POST',
           credentials: 'include',
         });
