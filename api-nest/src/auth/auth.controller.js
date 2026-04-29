@@ -33,7 +33,8 @@ export class AuthController {
       data: {
         carnet: user.carnet,
         pais: user.pais,
-        nombre: user.nombre
+        nombre: user.nombre,
+        roles: user.roles
       }
     });
   }
@@ -58,6 +59,7 @@ export class AuthController {
       data: {
         carnet: user.carnet,
         pais: user.pais,
+        roles: user.roles
       }
     });
   }
@@ -88,8 +90,18 @@ export class AuthController {
       data: {
         carnet: user.carnet,
         pais: user.pais,
-        nombre: user.nombre
+        nombre: user.nombre,
+        roles: user.roles
       }
     });
+  }
+  @Post('sso-sync-user')
+  @Bind(Body(), Res())
+  async ssoSyncUser(body, res) {
+    if (!body.carnet) {
+      return res.status(400).json({ status: 'error', message: 'Carnet es requerido' });
+    }
+    const result = await this.authService.syncUserFromPortal(body);
+    return res.json({ success: result });
   }
 }

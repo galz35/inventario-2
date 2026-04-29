@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Query, Req, Dependencies, Bind } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Req, Dependencies, Bind, UseGuards } from '@nestjs/common';
 import { SolicitudesService } from './solicitudes.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { RolesGuard, RequireRole } from '../auth/roles.guard';
 
 @Controller('api/v1/solicitudes')
 @Dependencies(SolicitudesService)
+@UseGuards(AuthGuard, RolesGuard)
 export class SolicitudesController {
   constructor(solicitudesService) {
     this.solicitudesService = solicitudesService;
@@ -47,7 +50,7 @@ export class SolicitudesController {
   @Post(':id/aprobar')
   @Bind(Param('id'), Body(), Req())
   async aprobar(id, body, req) {
-    const carnet = req.cookies?.user_carnet || 'SYSTEM'; 
+    const carnet = req.user?.carnet || req.cookies?.user_carnet || 'SYSTEM'; 
     const result = await this.solicitudesService.aprobar(id, carnet);
     return result;
   }
@@ -55,7 +58,7 @@ export class SolicitudesController {
   @Post(':id/rechazar')
   @Bind(Param('id'), Body(), Req())
   async rechazar(id, body, req) {
-    const carnet = req.cookies?.user_carnet || 'SYSTEM';
+    const carnet = req.user?.carnet || req.cookies?.user_carnet || 'SYSTEM';
     const result = await this.solicitudesService.rechazar(id, carnet, body.motivo);
     return result;
   }

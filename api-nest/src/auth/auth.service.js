@@ -59,11 +59,19 @@ export class AuthService {
 
       const user = result.recordset[0];
 
+      // Obtener roles
+      const rolesRes = await this.db.query(
+        'SELECT Rol FROM dbo.RolesSistema WHERE Carnet = @carnet AND Activo = 1',
+        [{ name: 'carnet', type: sql.VarChar, value: carnet }]
+      );
+      const roles = rolesRes.recordset.map(r => r.Rol);
+
       // Retornar datos del usuario para establecer la sesión local
       return {
         carnet: user.carnet,
         nombre: user.nombre_completo,
-        pais: user.pais
+        pais: user.pais,
+        roles
       };
     } catch (err) {
       if (err instanceof UnauthorizedException) throw err;
@@ -112,9 +120,16 @@ export class AuthService {
       [{ name: 'carnet', type: sql.VarChar, value: user.carnet }]
     );
 
+    const rolesRes = await this.db.query(
+      'SELECT Rol FROM dbo.RolesSistema WHERE Carnet = @carnet AND Activo = 1',
+      [{ name: 'carnet', type: sql.VarChar, value: user.carnet }]
+    );
+    const roles = rolesRes.recordset.map(r => r.Rol);
+
     return {
       carnet: user.carnet,
       pais: user.pais,
+      roles
     };
   }
   async validatePortalSession(sessionId) {
@@ -150,15 +165,30 @@ export class AuthService {
         }
 
         const user = result.recordset[0];
+
+        const rolesRes = await this.db.query(
+          'SELECT Rol FROM dbo.RolesSistema WHERE Carnet = @carnet AND Activo = 1',
+          [{ name: 'carnet', type: sql.VarChar, value: user.carnet }]
+        );
+        const roles = rolesRes.recordset.map(r => r.Rol);
+
         return {
           carnet: user.carnet,
           nombre: user.nombre_completo,
           pais: user.pais,
+          roles
         };
       }
     } catch (err) {
       console.error('Error validating portal session in Inventario:', err.message);
     }
     return null;
+  }
+
+  async syncUserFromPortal(data) {
+    console.log(`[SSO-SYNC] Forzando actualización en Inventario para usuario: ${data.carnet} (Aceptado)`);
+    // Inventario usa JIT (Just-In-Time) durante el login y portal-session, 
+    // por lo que este sync asegura que el flujo de eventos esté completo.
+    return true;
   }
 }

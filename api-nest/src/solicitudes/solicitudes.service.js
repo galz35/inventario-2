@@ -68,6 +68,27 @@ export class SolicitudesService {
 
   async aprobar(idSolicitud, carnetAprobador) {
     const sql = this.db.getSql();
+
+    // Verificar permisos
+    const check = await this.db.query(`
+      SELECT s.JefeCarnet, 
+             (SELECT COUNT(*) FROM dbo.RolesSistema r WHERE r.Carnet = @carnet AND r.Rol = 'RRHH_APRUEBA' AND r.Activo = 1) as EsRRHH
+      FROM dbo.Solicitudes s 
+      WHERE s.IdSolicitud = @idSolicitud
+    `, [
+      { name: 'idSolicitud', type: sql.BigInt, value: idSolicitud },
+      { name: 'carnet', type: sql.VarChar, value: carnetAprobador }
+    ]);
+    
+    if (check.recordset.length === 0) {
+      throw new Error('Solicitud no encontrada');
+    }
+    
+    const { JefeCarnet, EsRRHH } = check.recordset[0];
+    if (JefeCarnet !== carnetAprobador && EsRRHH === 0 && carnetAprobador !== 'SYSTEM') {
+      throw new Error('No tiene permisos para aprobar esta solicitud');
+    }
+
     await this.db.execute('dbo.Sol_Aprobar', [
       { name: 'IdSolicitud', type: sql.BigInt, value: idSolicitud },
       { name: 'CarnetAprobador', type: sql.VarChar, value: carnetAprobador },
@@ -77,6 +98,27 @@ export class SolicitudesService {
 
   async rechazar(idSolicitud, carnetRechaza, motivo) {
     const sql = this.db.getSql();
+
+    // Verificar permisos
+    const check = await this.db.query(`
+      SELECT s.JefeCarnet, 
+             (SELECT COUNT(*) FROM dbo.RolesSistema r WHERE r.Carnet = @carnet AND r.Rol = 'RRHH_APRUEBA' AND r.Activo = 1) as EsRRHH
+      FROM dbo.Solicitudes s 
+      WHERE s.IdSolicitud = @idSolicitud
+    `, [
+      { name: 'idSolicitud', type: sql.BigInt, value: idSolicitud },
+      { name: 'carnet', type: sql.VarChar, value: carnetRechaza }
+    ]);
+    
+    if (check.recordset.length === 0) {
+      throw new Error('Solicitud no encontrada');
+    }
+    
+    const { JefeCarnet, EsRRHH } = check.recordset[0];
+    if (JefeCarnet !== carnetRechaza && EsRRHH === 0 && carnetRechaza !== 'SYSTEM') {
+      throw new Error('No tiene permisos para rechazar esta solicitud');
+    }
+
     await this.db.execute('dbo.Sol_Rechazar', [
       { name: 'IdSolicitud', type: sql.BigInt, value: idSolicitud },
       { name: 'CarnetRechaza', type: sql.VarChar, value: carnetRechaza },

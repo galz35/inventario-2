@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -59,11 +60,16 @@ const Dashboard = ({ user, onLogout }) => {
   const [inventory, setInventory] = useState([]);
   const [requests, setRequests] = useState([]);
   const [kardex, setKardex] = useState([]);
+  const [kardexDesde, setKardexDesde] = useState('2024-01-01');
+  const [kardexHasta, setKardexHasta] = useState(new Date().toISOString().split('T')[0]);
   const [stats, setStats] = useState({ pendientesAprobacion: 0, pendientesDespacho: 0, stockBajo: 0, movimientosHoy: 0 });
 
   // UI
   const [loading, setLoading] = useState(false);
   const [isCrearModal, setCrearModal] = useState(false);
+  const [isDetalleModal, setDetalleModal] = useState(false);
+  const [detalleReq, setDetalleReq] = useState(null);
+  const [pendientesDespacho, setPendientesDespacho] = useState([]);
   const [selectedReq, setSelectedReq] = useState(null);
   const [filter, setFilter] = useState('');
   
@@ -105,8 +111,12 @@ const Dashboard = ({ user, onLogout }) => {
           setRequests(rR.data.data);
         }
         if (activeTab === 'kardex') {
-          const rK = await api.get(`/kardex?idAlmacen=${selectedAlm}&desde=2024-01-01`);
+          const rK = await api.get(`/kardex?idAlmacen=${selectedAlm}&desde=${kardexDesde}&hasta=${kardexHasta}`);
           setKardex(rK.data.data);
+        }
+        if (activeTab === 'despacho') {
+          const res = await api.get(`/bodega/pendientes?pais=${user.pais}`);
+          setPendientesDespacho(res.data.data);
         }
     } catch (e) { console.error(e); }
     setLoading(false);
@@ -128,10 +138,67 @@ const Dashboard = ({ user, onLogout }) => {
     setForm({ ...form, detalles: [...form.detalles, { idArticulo: '', talla: '', sexo: '', cantidad: 1 }] });
   };
 
+  const openDetalle = async (reqId) => {
+    try {
+      const res = await api.get(`/solicitudes/${reqId}/detalle?idAlmacen=${selectedAlm}`);
+      setDetalleReq({ id: reqId, lineas: res.data.data });
+      setDetalleModal(true);
+    } catch (e) { console.error(e); }
+  };
+
+  const aprobarSolicitud = async (id) => {
+    try {
+      await api.post(`/solicitudes/${id}/aprobar`, {});
+      setDetalleModal(false);
+      refresh();
+    } catch (e) { alert(e.response?.data?.message || 'Error al aprobar'); }
+  };
+
+  const rechazarSolicitud = async (id) => {
+    const motivo = prompt('Motivo de rechazo:');
+    if (!motivo) return;
+    try {
+      await api.post(`/solicitudes/${id}/rechazar`, { motivo });
+      setDetalleModal(false);
+      refresh();
+    } catch (e) { alert(e.response?.data?.message || 'Error al rechazar'); }
+  };
+
+  const despachar = async (reqId) => {
+    try {
+      const res = await api.get(`/solicitudes/${reqId}/detalle?idAlmacen=${selectedAlm}`);
+      const lineas = res.data.data.filter(l => l.Pendiente > 0).map(l => ({ IdDetalle: l.IdDetalle, CantidadDespachar: l.Pendiente }));
+      if (lineas.length === 0) return alert('No hay líneas pendientes con stock');
+      await api.post('/bodega/despachar', { idAlmacen: selectedAlm, idSolicitud: reqId, lineas });
+      alert('Despachado con éxito');
+      refresh();
+    } catch (e) { alert(e.response?.data?.message || 'Error al despachar'); }
+  };
+
+  const exportarExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(inventory.map(i => ({
+      Codigo: i.Codigo,
+      Articulo: i.Nombre,
+      Talla: i.Talla,
+      Sexo: i.Sexo,
+      StockActual: i.StockActual,
+      StockMinimo: i.StockMinimo,
+      Estado: i.StockActual <= i.StockMinimo ? 'Bajo' : 'Normal'
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventario");
+    XLSX.writeFile(wb, "Inventario_Export.xlsx");
+  };
+
+  const roles = user?.roles || [];
+  const esBodega = roles.includes('BODEGA') || roles.includes('ADMIN');
+  const esRRHH = roles.includes('RRHH_APRUEBA') || roles.includes('ADMIN');
+
   const menuItems = [
     { id: 'dashboard', label: 'Monitor Central', icon: LayoutDashboard },
     { id: 'inventory', label: 'Gestión de Stock', icon: Boxes },
     { id: 'solicitudes', label: 'Solicitudes', icon: FileText },
+    ...(esBodega ? [{ id: 'despacho', label: 'Despacho', icon: Truck }] : []),
     { id: 'kardex', label: 'Historial / Auditoría', icon: History },
   ];
 
@@ -182,7 +249,7 @@ const Dashboard = ({ user, onLogout }) => {
             <button className="menu-btn" onClick={() => setMenuOpen(true)}><Menu size={24}/></button>
             <div className="page-info">
               <h1>{menuItems.find(i=>i.id===activeTab)?.label}</h1>
-              <p>Claro Nicaragua · Dirección de RRHH</p>
+              <p>Claro {user?.pais === 'NI' ? 'Nicaragua' : user?.pais === 'GT' ? 'Guatemala' : user?.pais === 'HN' ? 'Honduras' : user?.pais === 'SV' ? 'El Salvador' : user?.pais === 'CR' ? 'Costa Rica' : user?.pais} · Dirección de RRHH</p>
             </div>
           </div>
           
@@ -285,7 +352,7 @@ const Dashboard = ({ user, onLogout }) => {
                     <input placeholder="Buscar por código o nombre..." value={filter} onChange={e=>setFilter(e.target.value)}/>
                   </div>
                   <div className="filter-actions">
-                     <button className="btn btn-outline"><FileText size={16}/> Exportar</button>
+                     <button className="btn btn-outline" onClick={exportarExcel}><FileText size={16}/> Exportar</button>
                   </div>
                 </div>
 
@@ -337,7 +404,7 @@ const Dashboard = ({ user, onLogout }) => {
                                <td><strong>{r.Motivo}</strong></td>
                                <td>{new Date(r.FechaSolicitud).toLocaleDateString()}</td>
                                <td><span className={`badge badge-${r.Estado?.toLowerCase()}`}>{r.Estado}</span></td>
-                               <td className="t-right"><button className="btn btn-outline btn-icon"><ChevronRight size={16}/></button></td>
+                               <td className="t-right"><button className="btn btn-outline btn-icon" onClick={() => openDetalle(r.IdSolicitud)}><ChevronRight size={16}/></button></td>
                             </tr>
                           ))}
                        </tbody>
@@ -348,6 +415,14 @@ const Dashboard = ({ user, onLogout }) => {
 
             {activeTab === 'kardex' && (
               <div className="kardex-view animate-up">
+                 <div className="filters-bar card">
+                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                     <input type="date" value={kardexDesde} onChange={e => setKardexDesde(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                     <span>a</span>
+                     <input type="date" value={kardexHasta} onChange={e => setKardexHasta(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
+                     <button className="btn btn-primary" onClick={refresh}><Search size={16}/></button>
+                   </div>
+                 </div>
                  <div className="card table-container">
                     <table className="custom-table">
                        <thead><tr><th>Fecha / Hora</th><th>Tipo</th><th>Artículo</th><th>Cantidad</th><th>Usuario / Carnet</th></tr></thead>
@@ -366,6 +441,30 @@ const Dashboard = ({ user, onLogout }) => {
                                <td><strong>{k.Usuario}</strong></td>
                             </tr>
                           ))}
+                       </tbody>
+                    </table>
+                 </div>
+              </div>
+            )}
+
+            {activeTab === 'despacho' && esBodega && (
+              <div className="despacho-view animate-up">
+                 <div className="card table-container">
+                    <table className="custom-table">
+                       <thead><tr><th>ID</th><th>Motivo</th><th>Empleado</th><th>Estado</th><th className="t-right">Acción</th></tr></thead>
+                       <tbody>
+                          {pendientesDespacho.map((r,idx)=>(
+                            <tr key={idx}>
+                               <td className="code-cell">#{r.IdSolicitud}</td>
+                               <td><strong>{r.Motivo}</strong></td>
+                               <td>{r.EmpleadoCarnet}</td>
+                               <td><span className={`badge badge-${r.Estado?.toLowerCase()}`}>{r.Estado}</span></td>
+                               <td className="t-right">
+                                 <button className="btn btn-primary" onClick={() => despachar(r.IdSolicitud)}><Package size={16}/> Despachar Todo</button>
+                               </td>
+                            </tr>
+                          ))}
+                          {pendientesDespacho.length === 0 && <tr><td colSpan="5" style={{textAlign: 'center', padding: '40px'}}>No hay solicitudes pendientes de despacho.</td></tr>}
                        </tbody>
                     </table>
                  </div>
@@ -421,6 +520,36 @@ const Dashboard = ({ user, onLogout }) => {
                 <button className="btn btn-primary" onClick={submitSolicitud}>
                    <Send size={16}/> Enviar Pedido
                 </button>
+             </div>
+          </div>
+      </Modal>
+
+      {/* MODAL DETALLE SOLICITUD */}
+      <Modal isOpen={isDetalleModal} onClose={()=>setDetalleModal(false)} title={'Detalle de Solicitud #' + detalleReq?.id}>
+          <div className="modal-form">
+             <table className="custom-table">
+                <thead><tr><th>Artículo</th><th>Talla / Sexo</th><th>Solicitado</th><th>Aprobado</th><th>Pendiente</th><th>Disponible</th></tr></thead>
+                <tbody>
+                   {detalleReq?.lineas.map((l,idx) => (
+                     <tr key={idx}>
+                       <td><strong>{l.ArticuloNombre}</strong></td>
+                       <td>{l.Talla} / {l.Sexo}</td>
+                       <td>{l.CantidadSolicitada}</td>
+                       <td>{l.CantidadAprobada}</td>
+                       <td><strong style={{color: l.Pendiente > 0 ? '#d97706' : '#16a34a'}}>{l.Pendiente}</strong></td>
+                       <td><strong style={{color: l.StockDisponible >= l.Pendiente ? '#16a34a' : '#dc2626'}}>{l.StockDisponible || 0}</strong></td>
+                     </tr>
+                   ))}
+                </tbody>
+             </table>
+             <div className="form-actions" style={{ marginTop: '20px' }}>
+                <button className="btn btn-outline" onClick={()=>setDetalleModal(false)}>Cerrar</button>
+                {esRRHH && (
+                  <>
+                    <button className="btn btn-outline" style={{borderColor: '#dc2626', color: '#dc2626'}} onClick={() => rechazarSolicitud(detalleReq.id)}><Ban size={16}/> Rechazar</button>
+                    <button className="btn btn-primary" style={{background: '#16a34a'}} onClick={() => aprobarSolicitud(detalleReq.id)}><Check size={16}/> Aprobar</button>
+                  </>
+                )}
              </div>
           </div>
       </Modal>

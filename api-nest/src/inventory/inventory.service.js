@@ -60,4 +60,23 @@ export class InventoryService {
     ]);
     return result.recordset;
   }
+
+  async pendientesDespacho(pais) {
+    const sql = this.db.getSql();
+    const result = await this.db.execute('dbo.Bod_Pendientes', [
+      { name: 'Pais', type: sql.VarChar, value: pais }
+    ]);
+    return result.recordset;
+  }
+
+  async despachar(idAlmacen, idSolicitud, carnetBodeguero, lineas) {
+    const sql = this.db.getSql();
+    await this.db.execute('dbo.Bod_Despachar', [
+      { name: 'IdAlmacen', type: sql.Int, value: idAlmacen },
+      { name: 'IdSolicitud', type: sql.BigInt, value: idSolicitud },
+      { name: 'CarnetBodeguero', type: sql.VarChar, value: carnetBodeguero },
+      { name: 'DespachoJson', type: sql.NVarChar, value: JSON.stringify(lineas) }
+    ]);
+    return { status: 'success' };
+  }
 }
