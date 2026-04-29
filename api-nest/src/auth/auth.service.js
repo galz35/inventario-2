@@ -14,13 +14,27 @@ export class AuthService {
   }
 
   async validateSSOToken(token) {
-    const SECRET = this.configService.get('JWT_SSO_SECRET');
-    if (!SECRET) {
-      throw new Error('JWT_SSO_SECRET no está configurado en el servidor');
+    const primarySecret = this.configService.get('JWT_SSO_SECRET');
+    const fallbackSecret = this.configService.get('JWT_SECRET');
+    const secretCandidates = [primarySecret, fallbackSecret].filter(Boolean);
+    if (secretCandidates.length === 0) {
+      throw new Error('JWT_SSO_SECRET/JWT_SECRET no están configurados en el servidor');
     }
 
     try {
-      const decoded = jwt.verify(token, SECRET, { clockTolerance: 10 });
+      let decoded = null;
+      let lastError = null;
+      for (const secret of secretCandidates) {
+        try {
+          decoded = jwt.verify(token, secret, { clockTolerance: 10 });
+          break;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      if (!decoded) {
+        throw lastError || new Error('No se pudo verificar el token');
+      }
       
       // Contrato de interfaz del Portal Central
       const { carnet, username, type } = decoded;
