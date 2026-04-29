@@ -23,17 +23,18 @@ export class AuthService {
 
     try {
       let decoded = null;
-      let lastError = null;
+      const verifyErrors = [];
       for (const secret of secretCandidates) {
         try {
           decoded = jwt.verify(token, secret, { clockTolerance: 10 });
           break;
         } catch (err) {
-          lastError = err;
+          verifyErrors.push(err);
         }
       }
       if (!decoded) {
-        throw lastError || new Error('No se pudo verificar el token');
+        const expiredErr = verifyErrors.find((e) => e && e.name === 'TokenExpiredError');
+        throw expiredErr || verifyErrors[verifyErrors.length - 1] || new Error('No se pudo verificar el token');
       }
       
       // Contrato de interfaz del Portal Central
