@@ -14,8 +14,8 @@ export class AuthService {
   }
 
   async validateSSOToken(token) {
-    const primarySecret = this.configService.get('JWT_SSO_SECRET');
-    const fallbackSecret = this.configService.get('JWT_SECRET');
+    const primarySecret = String(this.configService.get('JWT_SSO_SECRET') || '').trim();
+    const fallbackSecret = String(this.configService.get('JWT_SECRET') || '').trim();
     const secretCandidates = [primarySecret, fallbackSecret].filter(Boolean);
     if (secretCandidates.length === 0) {
       throw new Error('JWT_SSO_SECRET/JWT_SECRET no están configurados en el servidor');
