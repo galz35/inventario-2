@@ -6,7 +6,7 @@
 ///   flutter run
 ///
 /// Producción:
-///   flutter build apk --dart-define=API_BASE_URL=https://www.rhclaroni.com/api/
+///   flutter build apk --dart-define=API_BASE_URL=https://www.rhclaroni.com/api-portal-inventario/
 class AppConfig {
   static const String appName = 'Inventario Móvil';
 
@@ -14,10 +14,10 @@ class AppConfig {
   static const String productionDomain = 'www.rhclaroni.com';
 
   /// Base URL del API REST (Backend NestJS / Dio).
-  /// flutter run --dart-define=API_BASE_URL=https://www.rhclaroni.com/api/
+  /// flutter run --dart-define=API_BASE_URL=https://www.rhclaroni.com/api-portal-inventario/
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:3001/api/',
+    defaultValue: 'http://10.0.2.2:3003/',
   );
 
   /// Indica si la app corre en modo producción (HTTPS).

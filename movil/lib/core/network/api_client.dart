@@ -16,6 +16,8 @@ class ApiClient {
   static const _storage = FlutterSecureStorage();
   static const _keyAccess = 'momentus_access_token';
   static const _keyRefresh = 'momentus_refresh_token';
+  static const _keyUserCarnet = 'user_carnet';
+  static const _keyUserPais = 'user_pais';
 
   static final Dio dio = Dio(
     BaseOptions(
@@ -35,6 +37,20 @@ class ApiClient {
           if (access != null && access.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $access';
           }
+
+          final carnet = await _storage.read(key: _keyUserCarnet);
+          final pais = await _storage.read(key: _keyUserPais);
+          final cookieParts = <String>[];
+          if (carnet != null && carnet.isNotEmpty) {
+            cookieParts.add('user_carnet=$carnet');
+          }
+          if (pais != null && pais.isNotEmpty) {
+            cookieParts.add('user_pais=$pais');
+          }
+          if (cookieParts.isNotEmpty) {
+            options.headers['Cookie'] = cookieParts.join('; ');
+          }
+
           handler.next(options);
         },
 
