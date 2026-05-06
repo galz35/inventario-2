@@ -16,18 +16,34 @@ class PantallaDetalleDespacho extends StatefulWidget {
 class _PantallaDetalleDespachoState extends State<PantallaDetalleDespacho> {
   final _repository = InventarioRepository();
   bool _loading = false;
+  bool _cargandoDetalle = true;
   String? _rutaFoto;
-  final List<Map<String, dynamic>> _articulos = []; // Aquí cargaríamos los ítems reales
+  List<Map<String, dynamic>> _articulos = [];
 
   @override
   void initState() {
     super.initState();
-    // Simular carga de ítems (en una app real llamaríamos a la API aquí)
-    _articulos.addAll([
-      {'id': 1, 'nombre': 'Teclado Mecánico RGB', 'cantidad': 1, 'entregado': false},
-      {'id': 2, 'nombre': 'Mouse Pad XL', 'cantidad': 2, 'entregado': false},
-      {'id': 3, 'nombre': 'Monitor 24" Dell', 'cantidad': 1, 'entregado': false},
-    ]);
+    _cargarDetalle();
+  }
+
+  Future<void> _cargarDetalle() async {
+    try {
+      final detalle = await _repository.getDetalle(widget.solicitud.id, 1);
+      final lineas = detalle['lineas'] as List<dynamic>? ?? [];
+      setState(() {
+        _articulos = lineas.map((l) => {
+          'idDetalle': l['IdDetalle'] ?? 0,
+          'nombre': '${l['Codigo'] ?? ''} ${l['ArticuloNombre'] ?? ''}',
+          'talla': l['Talla'] ?? '',
+          'sexo': l['Sexo'] ?? '',
+          'cantidad': l['Pendiente'] ?? 1,
+          'entregado': false,
+        }).toList();
+        _cargandoDetalle = false;
+      });
+    } catch (e) {
+      setState(() => _cargandoDetalle = false);
+    }
   }
 
   Future<void> _tomarFoto() async {
@@ -68,8 +84,15 @@ class _PantallaDetalleDespachoState extends State<PantallaDetalleDespacho> {
 
     setState(() => _loading = true);
     try {
-      // Simular envío a API
-      await Future.delayed(const Duration(seconds: 2));
+      final lineas = _articulos
+        .where((a) => a['entregado'] == true)
+        .map((a) => {'IdDetalle': a['idDetalle'], 'CantidadDespachar': a['cantidad']})
+        .toList();
+      if (lineas.isEmpty) {
+        setState(() => _loading = false);
+        return;
+      }
+      await _repository.despachar(widget.solicitud.id, 1, lineas);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('¡Despacho registrado con éxito!'), backgroundColor: Colors.green),
@@ -97,7 +120,9 @@ class _PantallaDetalleDespachoState extends State<PantallaDetalleDespacho> {
           IconButton(icon: const Icon(Icons.qr_code_scanner), onPressed: _escanear),
         ],
       ),
-      body: ListView(
+      body: _cargandoDetalle
+        ? const Center(child: CircularProgressIndicator())
+        : ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Info del solicitante
@@ -198,7 +223,7 @@ class _PantallaDetalleDespachoState extends State<PantallaDetalleDespacho> {
         value: checked,
         onChanged: (v) => setState(() => item['entregado'] = v),
         title: Text(item['nombre'], style: TextStyle(fontWeight: FontWeight.bold, color: checked ? Colors.black : const Color(0xFF334155))),
-        subtitle: Text('Cantidad solicitada: ${item['cantidad']}'),
+        subtitle: Text('Cantidad: ${item['cantidad']}  ${item['talla'] != null && item['talla'] != '' ? 'Talla: ${item['talla']}  Sexo: ${item['sexo']}' : ''}'),
         activeColor: Colors.orange,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         secondary: Icon(Icons.inventory_2_outlined, color: checked ? Colors.orange : const Color(0xFF94A3B8)),

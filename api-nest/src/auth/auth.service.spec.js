@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { DatabaseService } from '../database/database.service';
 import { UnauthorizedException } from '@nestjs/common';
@@ -17,6 +18,16 @@ describe('AuthService', () => {
           useValue: {
             getSql: jest.fn().mockReturnValue({ VarChar: 'VarChar' }),
             query: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key) => {
+              if (key === 'JWT_SSO_SECRET') return 'test-sso-secret';
+              if (key === 'JWT_SECRET') return 'test-jwt-secret';
+              return null;
+            }),
           },
         },
       ],
@@ -52,6 +63,8 @@ describe('AuthService', () => {
     });
 
     const result = await authService.login('500708', 'correct_pass');
-    expect(result).toEqual({ carnet: '500708', pais: 'NI' });
+    expect(result.carnet).toBe('500708');
+    expect(result.pais).toBe('NI');
+    expect(Array.isArray(result.roles)).toBe(true);
   });
 });

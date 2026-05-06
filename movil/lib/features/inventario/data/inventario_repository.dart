@@ -5,11 +5,22 @@ import '../domain/solicitud.dart';
 class InventarioRepository {
   final Dio _dio = ApiClient.dio;
 
-  Future<List<Solicitud>> getPendientes() async {
+  Future<List<Solicitud>> getPendientes({String? pais}) async {
     try {
-      final response = await _dio.get('api/v1/bodega/pendientes');
+      final params = <String, dynamic>{};
+      if (pais != null) params['pais'] = pais;
+      final response = await _dio.get('api/v1/bodega/pendientes', queryParameters: params);
       final List<dynamic> data = response.data['data'] ?? [];
       return data.map((json) => Solicitud.fromJson(json)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> getDetalle(int idSolicitud, int idAlmacen) async {
+    try {
+      final response = await _dio.get('api/v1/solicitudes/$idSolicitud/detalle', queryParameters: {'idAlmacen': idAlmacen});
+      return response.data['data'] ?? {};
     } catch (e) {
       rethrow;
     }

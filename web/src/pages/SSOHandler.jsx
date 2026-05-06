@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import api from '../api';
 import { PORTAL_URL } from '../runtime';
@@ -13,7 +13,6 @@ const SSOHandler = ({ onLoginSuccess }) => {
 
   useEffect(() => {
     const token = searchParams.get('token');
-    
     if (!token) {
       setError('Token de seguridad no detectado.');
       return;

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 import { ShieldCheck, Loader2, Boxes, Activity } from 'lucide-react';
 import { PORTAL_URL, appPath } from '../runtime';
 

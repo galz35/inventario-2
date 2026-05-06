@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -65,38 +65,27 @@ const Dashboard = ({ user, onLogout }) => {
   const [stats, setStats] = useState({ pendientesAprobacion: 0, pendientesDespacho: 0, stockBajo: 0, movimientosHoy: 0 });
 
   // UI
-  const [loading, setLoading] = useState(false);
   const [isCrearModal, setCrearModal] = useState(false);
   const [isDetalleModal, setDetalleModal] = useState(false);
   const [detalleReq, setDetalleReq] = useState(null);
   const [pendientesDespacho, setPendientesDespacho] = useState([]);
-  const [selectedReq, setSelectedReq] = useState(null);
   const [filter, setFilter] = useState('');
   
   // Form State para Nueva Solicitud
   const [form, setForm] = useState({ motivo: '', detalles: [] });
   const [articulosBase, setArticulosBase] = useState([]);
 
-  useEffect(() => {
-    fetchInit();
-  }, []);
-
-  useEffect(() => {
-    if (selectedAlm) refresh();
-  }, [selectedAlm, activeTab]);
-
   const fetchInit = async () => {
     try {
-        const resA = await api.get(`/almacenes?pais=${user.pais}`);
-        setAlmacenes(resA.data.data);
-        if (resA.data.data.length > 0) setSelectedAlm(resA.data.data[0].IdAlmacen);
-        const resB = await api.get('/articulos');
-        setArticulosBase(resB.data.data);
+      const resA = await api.get(`/almacenes?pais=${user.pais}`);
+      setAlmacenes(resA.data.data);
+      if (resA.data.data.length > 0) setSelectedAlm(resA.data.data[0].IdAlmacen);
+      const resB = await api.get('/articulos');
+      setArticulosBase(resB.data.data);
     } catch (e) { console.error(e); }
   };
 
   const refresh = async () => {
-    setLoading(true);
     try {
         if (activeTab === 'dashboard' || activeTab === 'inventory') {
           const [rI, rS] = await Promise.all([
@@ -119,8 +108,10 @@ const Dashboard = ({ user, onLogout }) => {
           setPendientesDespacho(res.data.data);
         }
     } catch (e) { console.error(e); }
-    setLoading(false);
   };
+
+  useEffect(() => { fetchInit(); }, []);
+  useEffect(() => { if (selectedAlm) refresh(); }, [selectedAlm, activeTab]);
 
   const submitSolicitud = async () => {
     if (!form.motivo || form.detalles.length === 0) return alert('Complete el formulario');
