@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import SSOHandler from './pages/SSOHandler';
+import { ToastProvider } from './components/Toast';
 
 import { APP_BASE, API_BASE, PORTAL_URL } from './runtime';
 
@@ -19,17 +20,8 @@ function App() {
         return;
       }
 
-      const savedUser = localStorage.getItem('user');
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-        setInitialized(true);
-        return;
-      }
-
-      // Passive SSO Hydration
       try {
-        const response = await fetch(`${API_BASE}/auth/portal-session`, {
-          method: 'POST',
+        const response = await fetch(`${API_BASE}/auth/me`, {
           credentials: 'include',
         });
 
@@ -37,14 +29,12 @@ function App() {
           const payload = await response.json();
           if (payload.status === 'success' && payload.data) {
             if (!cancelled) {
-              const userData = payload.data;
-              setUser(userData);
-              localStorage.setItem('user', JSON.stringify(userData));
+              setUser(payload.data);
             }
           }
         }
       } catch (err) {
-        console.warn('Portal session bootstrap failed:', err);
+        console.warn('Session rehydration failed:', err);
       } finally {
         if (!cancelled) {
           setInitialized(true);
@@ -61,12 +51,15 @@ function App() {
 
   const handleLoginSuccess = (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.warn('Logout request failed:', e);
+    }
     setUser(null);
-    localStorage.removeItem('user');
     window.location.href = PORTAL_URL;
   };
 
@@ -76,6 +69,7 @@ function App() {
 
   return (
     <Router basename={basename}>
+      <ToastProvider>
       <Routes>
         {/* Ruta para capturar el SSO del Portal Central */}
         <Route 
@@ -98,6 +92,7 @@ function App() {
         {/* Redirección por defecto */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      </ToastProvider>
     </Router>
   );
 }

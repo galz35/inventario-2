@@ -1,5 +1,6 @@
-import { Controller, Post, Body, Res, Req, Dependencies, Bind } from '@nestjs/common';
+import { Controller, Get, Post, Body, Res, Req, Dependencies, Bind, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 
 @Controller('api/v1/auth')
 @Dependencies(AuthService)
@@ -103,5 +104,31 @@ export class AuthController {
     }
     const result = await this.authService.syncUserFromPortal(body);
     return res.json({ success: result });
+  }
+
+  @Post('logout')
+  @Bind(Res())
+  async logout(res) {
+    const clearOptions = { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 0 };
+    res.cookie('user_carnet', '', clearOptions);
+    res.cookie('user_pais', '', clearOptions);
+    return res.json({ status: 'success', message: 'Sesion cerrada' });
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  @Bind(Req(), Res())
+  async me(req, res) {
+    const carnet = req.cookies?.user_carnet;
+    const user = await this.authService.getCurrentUser(carnet);
+    return res.json({
+      status: 'success',
+      data: {
+        carnet: user.carnet,
+        pais: user.pais,
+        nombre: user.nombre,
+        roles: user.roles
+      }
+    });
   }
 }

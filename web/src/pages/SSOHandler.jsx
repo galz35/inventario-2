@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 import { ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+
+const MotionDiv = motion.div;
 import api from '../api';
 import { PORTAL_URL } from '../runtime';
 
@@ -46,7 +49,7 @@ const SSOHandler = ({ onLoginSuccess }) => {
          <div className="blob blob-2"></div>
       </div>
 
-      <motion.div 
+      <MotionDiv 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="sso-card"
@@ -61,7 +64,7 @@ const SSOHandler = ({ onLoginSuccess }) => {
         {!error && (
           <div className="loader-box">
              <div className="loading-bar">
-                <motion.div 
+                <MotionDiv 
                   className="bar-progress"
                   animate={{ x: ["-100%", "200%"] }}
                   transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -75,7 +78,7 @@ const SSOHandler = ({ onLoginSuccess }) => {
             Volver al Portal Central
           </button>
         )}
-      </motion.div>
+      </MotionDiv>
 
       <style jsx>{`
         .sso-page {

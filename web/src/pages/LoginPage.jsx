@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 import { ShieldCheck, Loader2, Boxes, Activity } from 'lucide-react';
 import { PORTAL_URL, appPath } from '../runtime';
 
+const MotionDiv = motion.div;
+
 const LoginPage = () => {
   useEffect(() => {
-    // Redirección automática al Portal Central (única fuente de identidad)
     console.log("[Portal Auth] Redirigiendo al servidor de identidad corporativa...");
     const ssoReturnUrl = new URL(appPath('/auth/sso'), window.location.origin).toString();
     window.location.href = `${PORTAL_URL}login-empleado?returnUrl=${encodeURIComponent(ssoReturnUrl)}`;
@@ -20,7 +22,7 @@ const LoginPage = () => {
       </div>
 
       <div className="login-container">
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
@@ -52,7 +54,7 @@ const LoginPage = () => {
           <footer className="login-footer">
             <p>© 2026 Claro Nicaragua · Dirección de Tecnología</p>
           </footer>
-        </motion.div>
+        </MotionDiv>
       </div>
 
       <style jsx>{`

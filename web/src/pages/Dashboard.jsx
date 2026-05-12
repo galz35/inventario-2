@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const MotionDiv = motion.div;
 import { 
   LayoutDashboard, 
   Boxes, 
@@ -26,6 +28,7 @@ import {
   Send
 } from 'lucide-react';
 import api from '../api';
+import { useToast } from '../components/Toast';
 
 // --- Global UI Components ---
 
@@ -33,7 +36,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
   <AnimatePresence>
     {isOpen && (
       <div className="modal-overlay">
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, scale: 0.9, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -44,7 +47,7 @@ const Modal = ({ isOpen, onClose, title, children }) => (
             <button onClick={onClose} className="btn-icon"><X size={20}/></button>
           </div>
           <div className="modal-body">{children}</div>
-        </motion.div>
+        </MotionDiv>
       </div>
     )}
   </AnimatePresence>
@@ -65,17 +68,25 @@ const Dashboard = ({ user, onLogout }) => {
   const [stats, setStats] = useState({ pendientesAprobacion: 0, pendientesDespacho: 0, stockBajo: 0, movimientosHoy: 0 });
 
   // UI
+  const addToast = useToast();
   const [isCrearModal, setCrearModal] = useState(false);
   const [isDetalleModal, setDetalleModal] = useState(false);
   const [detalleReq, setDetalleReq] = useState(null);
   const [pendientesDespacho, setPendientesDespacho] = useState([]);
   const [filter, setFilter] = useState('');
+  const [loadingCrear, setLoadingCrear] = useState(false);
+  const [loadingAprobar, setLoadingAprobar] = useState(false);
+  const [loadingRechazar, setLoadingRechazar] = useState(false);
+  const [loadingDespachar, setLoadingDespachar] = useState(false);
+  const [rechazarMotivo, setRechazarMotivo] = useState('');
+  const [isRechazarModal, setRechazarModal] = useState(false);
+  const [rechazarId, setRechazarId] = useState(null);
   
   // Form State para Nueva Solicitud
   const [form, setForm] = useState({ motivo: '', detalles: [] });
   const [articulosBase, setArticulosBase] = useState([]);
 
-  const fetchInit = async () => {
+  const fetchInit = useCallback(async () => {
     try {
       const resA = await api.get(`/almacenes?pais=${user.pais}`);
       setAlmacenes(resA.data.data);
@@ -83,9 +94,9 @@ const Dashboard = ({ user, onLogout }) => {
       const resB = await api.get('/articulos');
       setArticulosBase(resB.data.data);
     } catch (e) { console.error(e); }
-  };
+  }, [user.pais]);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     try {
         if (activeTab === 'dashboard' || activeTab === 'inventory') {
           const [rI, rS] = await Promise.all([
@@ -108,21 +119,46 @@ const Dashboard = ({ user, onLogout }) => {
           setPendientesDespacho(res.data.data);
         }
     } catch (e) { console.error(e); }
-  };
+  }, [activeTab, selectedAlm, user.pais, kardexDesde, kardexHasta]);
 
-  useEffect(() => { fetchInit(); }, []);
-  useEffect(() => { if (selectedAlm) refresh(); }, [selectedAlm, activeTab]);
+  useEffect(() => { fetchInit(); }, [fetchInit]);
+  useEffect(() => { if (selectedAlm) refresh(); }, [selectedAlm, activeTab, refresh]);
 
   const submitSolicitud = async () => {
-    if (!form.motivo || form.detalles.length === 0) return alert('Complete el formulario');
-    await api.post('/solicitudes', {
-      empleadoCarnet: user.carnet,
-      motivo: form.motivo,
-      detalles: form.detalles
-    });
-    setCrearModal(false);
-    setForm({ motivo: '', detalles: [] });
-    refresh();
+    if (!form.motivo || form.motivo.trim().length === 0) {
+      addToast('Ingrese un motivo para la solicitud', 'error');
+      return;
+    }
+    if (form.detalles.length === 0) {
+      addToast('Agregue al menos un artículo a la solicitud', 'error');
+      return;
+    }
+    for (const d of form.detalles) {
+      if (!d.idArticulo) {
+        addToast('Seleccione un artículo en todas las líneas', 'error');
+        return;
+      }
+      if (!d.cantidad || parseInt(d.cantidad) < 1) {
+        addToast('La cantidad debe ser mayor a 0', 'error');
+        return;
+      }
+    }
+    setLoadingCrear(true);
+    try {
+      await api.post('/solicitudes', {
+        empleadoCarnet: user.carnet,
+        motivo: form.motivo,
+        detalles: form.detalles
+      });
+      setCrearModal(false);
+      setForm({ motivo: '', detalles: [] });
+      addToast('Solicitud creada con éxito', 'success');
+      refresh();
+    } catch (e) {
+      addToast(e.response?.data?.message || 'Error al crear solicitud', 'error');
+    } finally {
+      setLoadingCrear(false);
+    }
   };
 
   const addArticulo = () => {
@@ -138,32 +174,63 @@ const Dashboard = ({ user, onLogout }) => {
   };
 
   const aprobarSolicitud = async (id) => {
+    setLoadingAprobar(true);
     try {
       await api.post(`/solicitudes/${id}/aprobar`, {});
       setDetalleModal(false);
+      addToast('Solicitud aprobada con éxito', 'success');
       refresh();
-    } catch (e) { alert(e.response?.data?.message || 'Error al aprobar'); }
+    } catch (e) {
+      addToast(e.response?.data?.message || 'Error al aprobar', 'error');
+    } finally {
+      setLoadingAprobar(false);
+    }
+  };
+
+  const confirmarRechazo = async () => {
+    if (!rechazarMotivo || rechazarMotivo.trim().length === 0) {
+      addToast('Ingrese un motivo de rechazo', 'error');
+      return;
+    }
+    setLoadingRechazar(true);
+    try {
+      await api.post(`/solicitudes/${rechazarId}/rechazar`, { motivo: rechazarMotivo });
+      setDetalleModal(false);
+      setRechazarModal(false);
+      setRechazarMotivo('');
+      setRechazarId(null);
+      addToast('Solicitud rechazada', 'success');
+      refresh();
+    } catch (e) {
+      addToast(e.response?.data?.message || 'Error al rechazar', 'error');
+    } finally {
+      setLoadingRechazar(false);
+    }
   };
 
   const rechazarSolicitud = async (id) => {
-    const motivo = prompt('Motivo de rechazo:');
-    if (!motivo) return;
-    try {
-      await api.post(`/solicitudes/${id}/rechazar`, { motivo });
-      setDetalleModal(false);
-      refresh();
-    } catch (e) { alert(e.response?.data?.message || 'Error al rechazar'); }
+    setRechazarId(id);
+    setRechazarMotivo('');
+    setRechazarModal(true);
   };
 
   const despachar = async (reqId) => {
+    setLoadingDespachar(true);
     try {
       const res = await api.get(`/solicitudes/${reqId}/detalle?idAlmacen=${selectedAlm}`);
       const lineas = res.data.data.filter(l => l.Pendiente > 0).map(l => ({ IdDetalle: l.IdDetalle, CantidadDespachar: l.Pendiente }));
-      if (lineas.length === 0) return alert('No hay líneas pendientes con stock');
+      if (lineas.length === 0) {
+        addToast('No hay líneas pendientes con stock', 'info');
+        return;
+      }
       await api.post('/bodega/despachar', { idAlmacen: selectedAlm, idSolicitud: reqId, lineas });
-      alert('Despachado con éxito');
+      addToast('Despachado con éxito', 'success');
       refresh();
-    } catch (e) { alert(e.response?.data?.message || 'Error al despachar'); }
+    } catch (e) {
+      addToast(e.response?.data?.message || 'Error al despachar', 'error');
+    } finally {
+      setLoadingDespachar(false);
+    }
   };
 
   const exportarExcel = () => {
@@ -212,7 +279,7 @@ const Dashboard = ({ user, onLogout }) => {
               >
                 <m.icon size={20} />
                 <span>{m.label}</span>
-                {activeTab === m.id && <motion.div layoutId="activeNav" className="active-blob" />}
+                {activeTab === m.id && <MotionDiv layoutId="activeNav" className="active-blob" />}
               </button>
             ))}
           </nav>
@@ -451,7 +518,7 @@ const Dashboard = ({ user, onLogout }) => {
                                <td>{r.EmpleadoCarnet}</td>
                                <td><span className={`badge badge-${r.Estado?.toLowerCase()}`}>{r.Estado}</span></td>
                                <td className="t-right">
-                                 <button className="btn btn-primary" onClick={() => despachar(r.IdSolicitud)}><Package size={16}/> Despachar Todo</button>
+                                 <button className="btn btn-primary" onClick={() => despachar(r.IdSolicitud)} disabled={loadingDespachar}><Package size={16}/> {loadingDespachar ? 'Despachando...' : 'Despachar Todo'}</button>
                                </td>
                             </tr>
                           ))}
@@ -506,12 +573,12 @@ const Dashboard = ({ user, onLogout }) => {
                 </div>
              </div>
 
-             <div className="form-actions">
-                <button className="btn btn-outline" onClick={()=>setCrearModal(false)}>Cancelar</button>
-                <button className="btn btn-primary" onClick={submitSolicitud}>
-                   <Send size={16}/> Enviar Pedido
-                </button>
-             </div>
+              <div className="form-actions">
+                 <button className="btn btn-outline" onClick={()=>setCrearModal(false)}>Cancelar</button>
+                 <button className="btn btn-primary" onClick={submitSolicitud} disabled={loadingCrear}>
+                    <Send size={16}/> {loadingCrear ? 'Enviando...' : 'Enviar Pedido'}
+                 </button>
+              </div>
           </div>
       </Modal>
 
@@ -533,14 +600,36 @@ const Dashboard = ({ user, onLogout }) => {
                    ))}
                 </tbody>
              </table>
-             <div className="form-actions" style={{ marginTop: '20px' }}>
-                <button className="btn btn-outline" onClick={()=>setDetalleModal(false)}>Cerrar</button>
-                {esRRHH && (
-                  <>
-                    <button className="btn btn-outline" style={{borderColor: '#dc2626', color: '#dc2626'}} onClick={() => rechazarSolicitud(detalleReq.id)}><Ban size={16}/> Rechazar</button>
-                    <button className="btn btn-primary" style={{background: '#16a34a'}} onClick={() => aprobarSolicitud(detalleReq.id)}><Check size={16}/> Aprobar</button>
-                  </>
-                )}
+              <div className="form-actions" style={{ marginTop: '20px' }}>
+                 <button className="btn btn-outline" onClick={()=>setDetalleModal(false)}>Cerrar</button>
+                 {esRRHH && (
+                   <>
+                     <button className="btn btn-outline" style={{borderColor: '#dc2626', color: '#dc2626'}} onClick={() => rechazarSolicitud(detalleReq.id)} disabled={loadingRechazar}><Ban size={16}/> Rechazar</button>
+                     <button className="btn btn-primary" style={{background: '#16a34a'}} onClick={() => aprobarSolicitud(detalleReq.id)} disabled={loadingAprobar}><Check size={16}/> {loadingAprobar ? 'Aprobando...' : 'Aprobar'}</button>
+                   </>
+                 )}
+              </div>
+          </div>
+      </Modal>
+
+      {/* MODAL RECHAZAR SOLICITUD */}
+      <Modal isOpen={isRechazarModal} onClose={() => { setRechazarModal(false); setRechazarMotivo(''); }} title="Rechazar Solicitud">
+          <div className="modal-form">
+             <div className="input-group">
+                <label>Motivo de Rechazo</label>
+                <textarea
+                  placeholder="Describa la razón del rechazo..."
+                  value={rechazarMotivo}
+                  onChange={e => setRechazarMotivo(e.target.value)}
+                  rows={4}
+                  style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--border)', fontSize: '14px', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+             </div>
+             <div className="form-actions">
+                <button className="btn btn-outline" onClick={() => { setRechazarModal(false); setRechazarMotivo(''); }}>Cancelar</button>
+                <button className="btn btn-primary" style={{background: '#dc2626'}} onClick={confirmarRechazo} disabled={loadingRechazar}>
+                   {loadingRechazar ? 'Rechazando...' : 'Confirmar Rechazo'}
+                </button>
              </div>
           </div>
       </Modal>

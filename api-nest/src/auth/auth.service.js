@@ -1,4 +1,4 @@
-import { Injectable, Dependencies, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Dependencies, UnauthorizedException, Logger } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
@@ -11,6 +11,7 @@ export class AuthService {
   constructor(db, configService) {
     this.db = db;
     this.configService = configService;
+    this.logger = new Logger(AuthService.name);
   }
 
   async validateSSOToken(token) {
@@ -24,11 +25,12 @@ export class AuthService {
     try {
       let decoded = null;
       const verifyErrors = [];
-      for (const secret of secretCandidates) {
+      for (let i = 0; i < secretCandidates.length; i++) {
         try {
-          decoded = jwt.verify(token, secret, { clockTolerance: 10 });
+          decoded = jwt.verify(token, secretCandidates[i], { clockTolerance: 60 });
           break;
         } catch (err) {
+          this.logger.warn(`[SSO] Attempt ${i + 1}/${secretCandidates.length} failed: ${err.name} - ${err.message}`);
           verifyErrors.push(err);
         }
       }
@@ -37,8 +39,8 @@ export class AuthService {
         throw expiredErr || verifyErrors[verifyErrors.length - 1] || new Error('No se pudo verificar el token');
       }
       
-      // Contrato de interfaz del Portal Central
       const { carnet, username, type } = decoded;
+      this.logger.log(`[SSO] Token válido para carnet=${carnet} type=${type}`);
 
       if (type !== 'SSO_PORTAL') {
         throw new UnauthorizedException('Tipo de token inválido');
@@ -75,8 +77,8 @@ export class AuthService {
       };
     } catch (err) {
       if (err instanceof UnauthorizedException) throw err;
-      console.error(`[SSO Inventario] Error de validación: ${err.message}`);
-      throw new UnauthorizedException(`Token de SSO inválido o expirado: ${err.message}`);
+      this.logger.error(`[SSO] Error verificando token: ${err.name} - ${err.message}`);
+      throw new UnauthorizedException('Token de SSO inválido o expirado');
     }
   }
 
@@ -143,6 +145,7 @@ export class AuthService {
         {},
         {
           headers: { Cookie: `portal_sid=${sessionId}` },
+          timeout: 5000,
         },
       );
 
@@ -180,15 +183,42 @@ export class AuthService {
         };
       }
     } catch (err) {
-      console.error('Error validating portal session in Inventario:', err.message);
+      this.logger.warn(`[PortalSession] Error contacting Portal: ${err.message}`);
     }
     return null;
   }
 
   async syncUserFromPortal(data) {
     console.log(`[SSO-SYNC] Forzando actualización en Inventario para usuario: ${data.carnet} (Aceptado)`);
-    // Inventario usa JIT (Just-In-Time) durante el login y portal-session, 
-    // por lo que este sync asegura que el flujo de eventos esté completo.
     return true;
+  }
+
+  async getCurrentUser(carnet) {
+    const sql = this.db.getSql();
+    const result = await this.db.query(
+      `SELECT carnet, nombre_completo, pais 
+       FROM dbo.vw_EmpleadosActivos 
+       WHERE carnet = @carnet`,
+      [{ name: 'carnet', type: sql.VarChar, value: carnet }]
+    );
+
+    if (result.recordset.length === 0) {
+      throw new UnauthorizedException(`Usuario ${carnet} no encontrado`);
+    }
+
+    const user = result.recordset[0];
+
+    const rolesRes = await this.db.query(
+      'SELECT Rol FROM dbo.RolesSistema WHERE Carnet = @carnet AND Activo = 1',
+      [{ name: 'carnet', type: sql.VarChar, value: carnet }]
+    );
+    const roles = rolesRes.recordset.map(r => r.Rol);
+
+    return {
+      carnet: user.carnet,
+      nombre: user.nombre_completo,
+      pais: user.pais,
+      roles
+    };
   }
 }
