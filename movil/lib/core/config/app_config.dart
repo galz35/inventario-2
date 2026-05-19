@@ -17,7 +17,7 @@ class AppConfig {
   /// flutter run --dart-define=API_BASE_URL=https://www.rhclaroni.com/api-portal-inventario/
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:3003/',
+    defaultValue: 'http://10.0.2.2:3023/',
   );
 
   /// Indica si la app corre en modo producción (HTTPS).

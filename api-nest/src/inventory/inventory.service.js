@@ -79,4 +79,64 @@ export class InventoryService {
     ]);
     return { status: 'success' };
   }
+
+  async preDespacho(idSolicitud, idAlmacen) {
+    const sql = this.db.getSql();
+    const detalle = await this.db.execute('dbo.Sol_DetalleConStock', [
+      { name: 'IdSolicitud', type: sql.BigInt, value: idSolicitud },
+      { name: 'IdAlmacen', type: sql.Int, value: idAlmacen },
+    ]);
+
+    const lineasConLotes = [];
+    for (const linea of detalle.recordset) {
+      const lotes = await this.db.execute('dbo.Inv_LotesPorArticulo', [
+        { name: 'IdAlmacen', type: sql.Int, value: idAlmacen },
+        { name: 'IdArticulo', type: sql.Int, value: linea.IdArticulo },
+      ]);
+      lineasConLotes.push({
+        ...linea,
+        lotesDisponibles: lotes.recordset,
+      });
+    }
+    return lineasConLotes;
+  }
+
+  async obtenerLotes(idAlmacen, idArticulo) {
+    const sql = this.db.getSql();
+    const result = await this.db.execute('dbo.Inv_LotesPorArticulo', [
+      { name: 'IdAlmacen', type: sql.Int, value: idAlmacen },
+      { name: 'IdArticulo', type: sql.Int, value: idArticulo },
+    ]);
+    return result.recordset;
+  }
+
+  async alertasVencimiento(idAlmacen, dias) {
+    const sql = this.db.getSql();
+    const result = await this.db.execute('dbo.Inv_AlertasVencimiento', [
+      { name: 'IdAlmacen', type: sql.Int, value: idAlmacen },
+      { name: 'Dias', type: sql.Int, value: dias },
+    ]);
+    return result.recordset;
+  }
+
+  async alertasStockBajo(idAlmacen) {
+    const sql = this.db.getSql();
+    const result = await this.db.execute('dbo.Inv_AlertasStockBajo', [
+      { name: 'IdAlmacen', type: sql.Int, value: idAlmacen },
+    ]);
+    return result.recordset;
+  }
+
+  async guardarEvidencia(idSolicitud, idDetalle, nombreArchivo, tipoArchivo, contenidoBase64, carnet) {
+    const sql = this.db.getSql();
+    const result = await this.db.execute('dbo.Bod_GuardarEvidencia', [
+      { name: 'IdSolicitud', type: sql.BigInt, value: idSolicitud },
+      { name: 'IdDetalle', type: sql.BigInt, value: idDetalle || null },
+      { name: 'NombreArchivo', type: sql.VarChar, value: nombreArchivo },
+      { name: 'TipoArchivo', type: sql.VarChar, value: tipoArchivo },
+      { name: 'ContenidoBase64', type: sql.VarChar, value: contenidoBase64 },
+      { name: 'CarnetSubio', type: sql.VarChar, value: carnet },
+    ]);
+    return result.recordset[0];
+  }
 }

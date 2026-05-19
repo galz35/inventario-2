@@ -1,7 +1,7 @@
 /* 03_seed.sql (en cada BD) */
 -- Almacén base
 IF NOT EXISTS (SELECT 1 FROM dbo.Almacenes WHERE Codigo='BOD-01')
-    INSERT INTO dbo.Almacenes(Codigo,Nombre) VALUES ('BOD-01','Bodega Principal');
+    INSERT INTO dbo.Almacenes(Codigo,Nombre,Pais) VALUES ('BOD-01','Bodega Principal','NI');
 
 -- Roles ejemplo
 IF NOT EXISTS (SELECT 1 FROM dbo.RolesSistema WHERE Carnet='500708' AND Rol='ADMIN')

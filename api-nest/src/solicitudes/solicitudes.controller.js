@@ -26,17 +26,17 @@ export class SolicitudesController {
   }
 
   @Get()
-  @Bind(Query('estado'), Query('desde'), Query('hasta'), Query('pais'))
-  async listar(estado, desde, hasta, pais) {
-    const data = await this.solicitudesService.listar(estado, desde, hasta, pais);
+  @Bind(Query('estado'), Query('desde'), Query('hasta'), Query('pais'), Req())
+  async listar(estado, desde, hasta, pais, req) {
+    const data = await this.solicitudesService.listar(estado, desde, hasta, pais, req.user);
     return { status: 'success', data };
   }
 
   @Post()
-  @Bind(Body())
-  async crear(body) {
+  @Bind(Body(), Req())
+  async crear(body, req) {
     const { empleadoCarnet, motivo, detalles } = body;
-    const data = await this.solicitudesService.crear(empleadoCarnet, motivo, detalles);
+    const data = await this.solicitudesService.crear(empleadoCarnet, motivo, detalles, req.user, req);
     return { status: 'success', data };
   }
 
@@ -50,8 +50,8 @@ export class SolicitudesController {
   @Post(':id/aprobar')
   @Bind(Param('id'), Body(), Req())
   async aprobar(id, body, req) {
-    const carnet = req.user?.carnet || req.cookies?.user_carnet || 'SYSTEM'; 
-    const result = await this.solicitudesService.aprobar(id, carnet);
+    const carnet = req.user?.carnet || req.cookies?.user_carnet || 'SYSTEM';
+    const result = await this.solicitudesService.aprobar(id, carnet, req.user);
     return result;
   }
 
@@ -59,7 +59,7 @@ export class SolicitudesController {
   @Bind(Param('id'), Body(), Req())
   async rechazar(id, body, req) {
     const carnet = req.user?.carnet || req.cookies?.user_carnet || 'SYSTEM';
-    const result = await this.solicitudesService.rechazar(id, carnet, body.motivo);
+    const result = await this.solicitudesService.rechazar(id, carnet, body.motivo, req.user);
     return result;
   }
 }

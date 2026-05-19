@@ -17,10 +17,16 @@ class InventarioRepository {
     }
   }
 
-  Future<Map<String, dynamic>> getDetalle(int idSolicitud, int idAlmacen) async {
+  Future<List<Map<String, dynamic>>> getDetalle(int idSolicitud, int idAlmacen) async {
     try {
-      final response = await _dio.get('api/v1/solicitudes/$idSolicitud/detalle', queryParameters: {'idAlmacen': idAlmacen});
-      return response.data['data'] ?? {};
+      final response = await _dio.get(
+        'api/v1/solicitudes/$idSolicitud/detalle',
+        queryParameters: {'idAlmacen': idAlmacen},
+      );
+      final raw = response.data['data'];
+      if (raw is List) return raw.cast<Map<String, dynamic>>();
+      if (raw is Map && raw['lineas'] is List) return List<Map<String, dynamic>>.from(raw['lineas']);
+      return [];
     } catch (e) {
       rethrow;
     }

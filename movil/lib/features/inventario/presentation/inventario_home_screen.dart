@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../home/presentation/home_shell.dart';
 import '../data/inventario_repository.dart';
@@ -14,9 +15,14 @@ class InventarioHomeScreen extends StatefulWidget {
 
 class _InventarioHomeScreenState extends State<InventarioHomeScreen> {
   final _repository = InventarioRepository();
+  final _storage = const FlutterSecureStorage();
   List<Solicitud>? _solicitudes;
   bool _loading = true;
   String? _error;
+
+  Future<String?> _getPais() async {
+    return await _storage.read(key: 'user_pais');
+  }
 
   @override
   void initState() {
@@ -30,7 +36,8 @@ class _InventarioHomeScreenState extends State<InventarioHomeScreen> {
       _error = null;
     });
     try {
-      final data = await _repository.getPendientes();
+      final pais = await _getPais();
+      final data = await _repository.getPendientes(pais: pais);
       setState(() {
         _solicitudes = data;
         _loading = false;
@@ -102,10 +109,12 @@ class _InventarioHomeScreenState extends State<InventarioHomeScreen> {
       ),
       child: InkWell(
         onTap: () async {
+          final idAlmacenStr = await _storage.read(key: 'id_almacen');
+          final idAlmacen = int.tryParse(idAlmacenStr ?? '') ?? 1;
           final res = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PantallaDetalleDespacho(solicitud: sol),
+              builder: (context) => PantallaDetalleDespacho(solicitud: sol, idAlmacen: idAlmacen),
             ),
           );
           if (res == true) _loadData();

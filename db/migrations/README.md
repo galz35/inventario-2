@@ -3,13 +3,13 @@
 ## Orden de ejecución
 
 ```bash
-# 1. Crear base de datos (opcional, si no existe)
+# 1. Crear base de datos Inventario_RRHH (opcional, si no existe)
 sqlcmd -S server -U sa -i 00_crear_bds.sql
 
 # 2. Crear/actualizar tabla EMP2024 (empleados)
 sqlcmd -S server -U sa -d Inventario_RRHH -i 00_EMP2024_LOCAL.sql
 
-# 3. Schema de inventario (tablas, vistas)
+# 3. Schema de inventario (tablas, vistas, columnas)
 sqlcmd -S server -U sa -d Inventario_RRHH -i 01_schema.sql
 
 # 4. Stored Procedures
@@ -40,7 +40,7 @@ SELECT OBJECT_ID('dbo.Bod_Pendientes') AS Bod_Pendientes;
 
 | SP | Controller | Propósito |
 |----|-----------|-----------|
-| `Inv_ListarAlmacenes` | inventory | Lista almacenes por país |
+| `Inv_ListarAlmacenes` | inventory | Lista almacenes (con parámetro @Pais) |
 | `Inv_ListarArticulos` | inventory | Catálogo de artículos |
 | `Inv_InventarioPorAlmacen` | inventory | Stock por almacén |
 | `Inv_Mov_EntradaMerma` | inventory | Registrar movimiento |

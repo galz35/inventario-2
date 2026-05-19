@@ -26,8 +26,8 @@ export class AuthGuard {
       throw new UnauthorizedException('Usuario inactivo o no existe en seguridad.');
     }
 
-    // Adjuntar usuario al request
-    request.user = { carnet, pais: request.cookies?.user_pais };
+    // Adjuntar usuario al request (roles se cargan en RolesGuard si aplica)
+    request.user = { carnet, pais: request.cookies?.user_pais, roles: [] };
     return true;
   }
 }

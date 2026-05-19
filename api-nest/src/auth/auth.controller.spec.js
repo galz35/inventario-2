@@ -3,6 +3,12 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseService } from '../database/database.service';
 import { ConfigService } from '@nestjs/config';
+import { AuditService } from '../common/audit.service';
+
+const mockAudit = {
+  registrar: jest.fn().mockResolvedValue(undefined),
+  listar: jest.fn().mockResolvedValue([]),
+};
 
 describe('AuthController', () => {
   let authController;
@@ -29,6 +35,7 @@ describe('AuthController', () => {
         AuthService,
         { provide: DatabaseService, useValue: mockDb },
         { provide: ConfigService, useValue: mockConfig },
+        { provide: AuditService, useValue: mockAudit },
       ],
     }).compile();
 
@@ -43,12 +50,13 @@ describe('AuthController', () => {
 
   describe('logout', () => {
     it('should clear cookies and return success', async () => {
+      const req = { cookies: {}, signedCookies: {} };
       const res = {
         cookie: jest.fn(),
         json: jest.fn(),
       };
 
-      await authController.logout(res);
+      await authController.logout(req, res);
 
       expect(res.cookie).toHaveBeenCalledTimes(2);
       expect(res.cookie).toHaveBeenCalledWith('user_carnet', '', expect.objectContaining({ maxAge: 0 }));

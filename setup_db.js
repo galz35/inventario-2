@@ -304,8 +304,56 @@ async function run() {
       END
       IF NOT EXISTS (SELECT 1 FROM dbo.ConfigSistema WHERE Clave='VERSION')
         INSERT INTO dbo.ConfigSistema(Clave,Valor) VALUES ('VERSION','1.0');
+
+      IF OBJECT_ID('dbo.DespachoEvidencias','U') IS NULL
+      BEGIN
+        CREATE TABLE dbo.DespachoEvidencias (
+          IdEvidencia BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_DespachoEvidencia PRIMARY KEY,
+          IdSolicitud BIGINT NOT NULL,
+          IdDetalle BIGINT NULL,
+          NombreArchivo VARCHAR(255) NOT NULL,
+          TipoArchivo VARCHAR(50) NOT NULL,
+          ContenidoBase64 VARCHAR(MAX) NOT NULL,
+          CarnetSubio VARCHAR(20) NOT NULL,
+          FechaSubida DATETIME NOT NULL DEFAULT GETDATE(),
+          CONSTRAINT FK_DespEvi_Sol FOREIGN KEY (IdSolicitud) REFERENCES dbo.Solicitudes(IdSolicitud)
+        );
+        CREATE INDEX IX_DespEvi_Solicitud ON dbo.DespachoEvidencias(IdSolicitud);
+      END
+
+      IF OBJECT_ID('dbo.InvPermisoEmpleado','U') IS NULL
+      BEGIN
+        CREATE TABLE dbo.InvPermisoEmpleado (
+          IdPermiso INT IDENTITY PRIMARY KEY,
+          CarnetRecibe VARCHAR(20) NOT NULL,
+          CarnetObjetivo VARCHAR(20) NOT NULL,
+          TipoAcceso VARCHAR(10) NOT NULL DEFAULT 'ALLOW',
+          Activo BIT NOT NULL DEFAULT 1,
+          FechaInicio DATETIME NULL,
+          FechaFin DATETIME NULL,
+          CreadoPor VARCHAR(20) NOT NULL,
+          CreadoEn DATETIME NOT NULL DEFAULT GETDATE()
+        );
+        CREATE INDEX IX_Permiso_Recibe ON dbo.InvPermisoEmpleado(CarnetRecibe) INCLUDE(CarnetObjetivo,TipoAcceso,Activo,FechaInicio,FechaFin);
+      END
+
+      IF OBJECT_ID('dbo.InvDelegacionVisibilidad','U') IS NULL
+      BEGIN
+        CREATE TABLE dbo.InvDelegacionVisibilidad (
+          IdDelegacion INT IDENTITY PRIMARY KEY,
+          CarnetDelegante VARCHAR(20) NOT NULL,
+          CarnetDelegado VARCHAR(20) NOT NULL,
+          Activo BIT NOT NULL DEFAULT 1,
+          FechaInicio DATETIME NULL,
+          FechaFin DATETIME NULL,
+          Motivo VARCHAR(255) NULL,
+          CreadoPor VARCHAR(20) NOT NULL,
+          CreadoEn DATETIME NOT NULL DEFAULT GETDATE()
+        );
+        CREATE INDEX IX_Delegacion_Delegado ON dbo.InvDelegacionVisibilidad(CarnetDelegado) INCLUDE(CarnetDelegante,Activo,FechaInicio,FechaFin);
+      END
     `);
-    console.log('✅ ConfigSistema');
+    console.log('✅ ConfigSistema + Visibilidad tablas');
 
     // =============================================
     // PASO 8: Stored Procedures de Empleados
@@ -437,7 +485,7 @@ async function run() {
     console.log('✅ Sol_CrearSolicitud');
 
     await pool.request().query(`
-      CREATE OR ALTER PROCEDURE dbo.Sol_Listar @Estado VARCHAR(30)=NULL, @Desde DATE=NULL, @Hasta DATE=NULL, @Pais VARCHAR(2)=NULL
+      CREATE OR ALTER PROCEDURE dbo.Sol_Listar @Estado VARCHAR(30)=NULL, @Desde DATE=NULL, @Hasta DATE=NULL, @Pais VARCHAR(2)=NULL, @CarnetsCsv VARCHAR(MAX)=NULL
       AS BEGIN SET NOCOUNT ON;
         SELECT TOP(500) s.IdSolicitud, s.FechaCreacion, s.EmpleadoCarnet,
           e.nombre_completo AS EmpleadoNombre, e.Gender AS EmpleadoSexo, e.OGERENCIA AS Gerencia,
@@ -447,6 +495,7 @@ async function run() {
           AND (@Desde IS NULL OR CAST(s.FechaCreacion AS DATE)>=@Desde)
           AND (@Hasta IS NULL OR CAST(s.FechaCreacion AS DATE)<=@Hasta)
           AND (@Pais IS NULL OR @Pais='' OR e.pais=@Pais)
+          AND (@CarnetsCsv IS NULL OR @CarnetsCsv='' OR EXISTS (SELECT 1 FROM STRING_SPLIT(@CarnetsCsv, ',') WHERE value=s.EmpleadoCarnet))
         ORDER BY s.FechaCreacion DESC;
       END
     `);
@@ -617,6 +666,29 @@ async function run() {
     `);
     console.log('✅ Bod_Despachar (con FEFO)');
 
+    await pool.request().query(`
+      CREATE OR ALTER PROCEDURE dbo.Bod_GuardarEvidencia
+        @IdSolicitud BIGINT, @IdDetalle BIGINT=NULL, @NombreArchivo VARCHAR(255),
+        @TipoArchivo VARCHAR(50), @ContenidoBase64 VARCHAR(MAX), @CarnetSubio VARCHAR(20)
+      AS BEGIN SET NOCOUNT ON;
+        INSERT INTO dbo.DespachoEvidencias(IdSolicitud,IdDetalle,NombreArchivo,TipoArchivo,ContenidoBase64,CarnetSubio)
+        VALUES(@IdSolicitud,@IdDetalle,@NombreArchivo,@TipoArchivo,@ContenidoBase64,@CarnetSubio);
+        SELECT SCOPE_IDENTITY() AS IdEvidencia;
+      END
+    `);
+    console.log('✅ Bod_GuardarEvidencia');
+
+    await pool.request().query(`
+      CREATE OR ALTER PROCEDURE dbo.Bod_LimpiarEvidenciasViejas @DiasRetencion INT=14
+      AS BEGIN SET NOCOUNT ON;
+        DELETE e FROM dbo.DespachoEvidencias e
+        JOIN dbo.Solicitudes s ON s.IdSolicitud=e.IdSolicitud
+        WHERE s.Estado IN('Atendida','Rechazada') AND e.FechaSubida<DATEADD(DAY,-@DiasRetencion,GETDATE());
+        SELECT @@ROWCOUNT AS Eliminadas;
+      END
+    `);
+    console.log('✅ Bod_LimpiarEvidenciasViejas');
+
     // =============================================
     // PASO 13: SP Kardex
     // =============================================
@@ -638,9 +710,51 @@ async function run() {
     console.log('✅ Kdx_Listar');
 
     // =============================================
-    // PASO 14: Seed (datos iniciales)
+    // PASO 14: SPs Visibilidad Jerárquica
     // =============================================
-    console.log('\n--- PASO 14: Datos Iniciales ---');
+    console.log('\n--- PASO 14: SPs Visibilidad ---');
+    await pool.request().query(`
+      CREATE OR ALTER PROCEDURE dbo.Inv_Visibilidad_ObtenerCarnets @CarnetSolicitante VARCHAR(20)
+      AS BEGIN SET NOCOUNT ON;
+        DECLARE @Carnet VARCHAR(20)=LTRIM(RTRIM(@CarnetSolicitante));
+        IF @Carnet='' THROW 61001,'Carnet requerido.',1;
+        CREATE TABLE #Carnets(carnet VARCHAR(20) NOT NULL PRIMARY KEY, fuente VARCHAR(20) NOT NULL, nivel INT NOT NULL);
+        INSERT INTO #Carnets(carnet,fuente,nivel) VALUES(@Carnet,'MISMO',0);
+        INSERT INTO #Carnets(carnet,fuente,nivel) SELECT e.carnet,'JERARQUIA',1 FROM dbo.vw_EmpleadosActivos e WHERE e.carnet_jefe1=@Carnet AND e.carnet<>@Carnet AND NOT EXISTS(SELECT 1 FROM #Carnets c WHERE c.carnet=e.carnet);
+        INSERT INTO #Carnets(carnet,fuente,nivel) SELECT e.carnet,'JERARQUIA',2 FROM dbo.vw_EmpleadosActivos e WHERE e.carnet_jefe2=@Carnet AND e.carnet<>@Carnet AND NOT EXISTS(SELECT 1 FROM #Carnets c WHERE c.carnet=e.carnet);
+        INSERT INTO #Carnets(carnet,fuente,nivel) SELECT e.carnet,'JERARQUIA',3 FROM dbo.vw_EmpleadosActivos e WHERE e.carnet_jefe3=@Carnet AND e.carnet<>@Carnet AND NOT EXISTS(SELECT 1 FROM #Carnets c WHERE c.carnet=e.carnet);
+        INSERT INTO #Carnets(carnet,fuente,nivel) SELECT e.carnet,'JERARQUIA',4 FROM dbo.vw_EmpleadosActivos e WHERE e.carnet_jefe4=@Carnet AND e.carnet<>@Carnet AND NOT EXISTS(SELECT 1 FROM #Carnets c WHERE c.carnet=e.carnet);
+        INSERT INTO #Carnets(carnet,fuente,nivel) SELECT e.carnet,'DELEGACION',1 FROM dbo.vw_EmpleadosActivos e WHERE EXISTS(SELECT 1 FROM dbo.InvDelegacionVisibilidad d WHERE d.CarnetDelegado=@Carnet AND d.Activo=1 AND(d.FechaInicio IS NULL OR d.FechaInicio<=GETDATE())AND(d.FechaFin IS NULL OR d.FechaFin>=GETDATE())AND(e.carnet_jefe1=d.CarnetDelegante OR e.carnet_jefe2=d.CarnetDelegante OR e.carnet_jefe3=d.CarnetDelegante OR e.carnet_jefe4=d.CarnetDelegante)) AND NOT EXISTS(SELECT 1 FROM #Carnets c WHERE c.carnet=e.carnet);
+        INSERT INTO #Carnets(carnet,fuente,nivel) SELECT p.CarnetObjetivo,'PERMISO',0 FROM dbo.InvPermisoEmpleado p WHERE p.CarnetRecibe=@Carnet AND p.Activo=1 AND p.TipoAcceso='ALLOW' AND(p.FechaInicio IS NULL OR p.FechaInicio<=GETDATE())AND(p.FechaFin IS NULL OR p.FechaFin>=GETDATE())AND NOT EXISTS(SELECT 1 FROM #Carnets c WHERE c.carnet=p.CarnetObjetivo);
+        DELETE c FROM #Carnets c WHERE EXISTS(SELECT 1 FROM dbo.InvPermisoEmpleado p WHERE p.CarnetRecibe=@Carnet AND p.CarnetObjetivo=c.carnet AND p.Activo=1 AND p.TipoAcceso='DENY' AND(p.FechaInicio IS NULL OR p.FechaInicio<=GETDATE())AND(p.FechaFin IS NULL OR p.FechaFin>=GETDATE()));
+        SELECT carnet,fuente,nivel FROM #Carnets ORDER BY nivel,carnet; DROP TABLE #Carnets;
+      END
+    `);
+    console.log('✅ Inv_Visibilidad_ObtenerCarnets');
+
+    await pool.request().query(`
+      CREATE OR ALTER PROCEDURE dbo.Inv_Visibilidad_ObtenerMiEquipo @CarnetSolicitante VARCHAR(20)
+      AS BEGIN SET NOCOUNT ON;
+        SELECT e.carnet,e.nombre_completo,e.correo,e.cargo,e.pais,e.OGERENCIA,e.oDEPARTAMENTO,e.oSUBGERENCIA,
+          e.carnet_jefe1,e.nom_jefe1,e.carnet_jefe2,e.nom_jefe2,v.fuente,v.nivel
+        FROM dbo.Inv_Visibilidad_ObtenerCarnets(@CarnetSolicitante) v
+        JOIN dbo.vw_EmpleadosActivos e ON e.carnet=v.carnet ORDER BY v.nivel,e.nombre_completo;
+      END
+    `);
+    console.log('✅ Inv_Visibilidad_ObtenerMiEquipo');
+
+    await pool.request().query(`
+      CREATE OR ALTER PROCEDURE dbo.Inv_Visibilidad_PuedeVer @CarnetSolicitante VARCHAR(20), @CarnetObjetivo VARCHAR(20)
+      AS BEGIN SET NOCOUNT ON;
+        SELECT CAST(CASE WHEN EXISTS(SELECT 1 FROM dbo.Inv_Visibilidad_ObtenerCarnets(@CarnetSolicitante) WHERE carnet=@CarnetObjetivo) THEN 1 ELSE 0 END AS BIT) AS PuedeVer;
+      END
+    `);
+    console.log('✅ Inv_Visibilidad_PuedeVer');
+
+    // =============================================
+    // PASO 15: Seed (datos iniciales)
+    // =============================================
+    console.log('\n--- PASO 15: Datos Iniciales ---');
     await pool.request().query(`
       IF NOT EXISTS(SELECT 1 FROM dbo.Almacenes WHERE Codigo='BOD-01')
         INSERT INTO dbo.Almacenes(Codigo,Nombre,Pais) VALUES('BOD-01','Bodega Principal','NI');

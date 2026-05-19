@@ -6,6 +6,9 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { SolicitudesModule } from './solicitudes/solicitudes.module';
+import { EmpleadosModule } from './empleados/empleados.module';
+import { AdminModule } from './admin/admin.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -14,6 +17,9 @@ import { SolicitudesModule } from './solicitudes/solicitudes.module';
     AuthModule,
     InventoryModule,
     SolicitudesModule,
+    EmpleadosModule,
+    AdminModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,6 +5,9 @@ const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:3023/api/v1';
 const USER_CARNET = process.env.USER_CARNET;
 const USER_PAIS = process.env.USER_PAIS || 'NI';
 const ID_ALMACEN = process.env.ID_ALMACEN || '1';
+const TIMEOUT_MS = parseInt(process.env.TIMEOUT_MS || '8000');
+const EXPECT_BODEGA = process.env.EXPECT_BODEGA === '1';
+const RUN_MUTATION_FLOW = process.env.RUN_MUTATION_FLOW === '1';
 
 if (!USER_CARNET) {
   console.error('ERROR: Debe definir USER_CARNET');
@@ -29,6 +32,7 @@ async function request(method, path, opts = {}) {
         port: u.port,
         path: u.pathname + u.search,
         method,
+        timeout: TIMEOUT_MS,
         headers: {
           'Cookie': opts.noCookie ? '' : cookie,
           'Content-Type': 'application/json',
@@ -47,6 +51,7 @@ async function request(method, path, opts = {}) {
       }
     );
     req.on('error', reject);
+    req.on('timeout', () => { req.destroy(); reject(new Error(`timeout de ${TIMEOUT_MS}ms`)); });
     if (opts.body) req.write(JSON.stringify(opts.body));
     req.end();
   });
@@ -130,11 +135,14 @@ function assert(cond, msg) {
     assert(r.body?.status === 'success', `status no success`);
   });
 
-  // 9. Bodega pendientes (verifica si el usuario tiene rol BODEGA)
-  await check('GET /bodega/pendientes?pais=NI (puede dar 200 o 403)', async () => {
+  // 9. Bodega pendientes
+  await check(`GET /bodega/pendientes?pais=${USER_PAIS} ${EXPECT_BODEGA ? '(debe ser 200)' : '(200 o 403)'}`, async () => {
     const r = await request('GET', `/bodega/pendientes?pais=${USER_PAIS}`);
-    // Puede ser 200 (tiene rol) o 403 (no tiene rol) - ambos son respuestas válidas del sistema
-    assert([200, 403].includes(r.status), `esperado 200 o 403, recibido ${r.status} - ${r.raw}`);
+    if (EXPECT_BODEGA) {
+      assert(r.status === 200, `esperado 200, recibido ${r.status}`);
+    } else {
+      assert([200, 403].includes(r.status), `esperado 200 o 403, recibido ${r.status} - ${r.raw}`);
+    }
   });
 
   // 10. Kardex
@@ -142,6 +150,13 @@ function assert(cond, msg) {
     const r = await request('GET', `/kardex?idAlmacen=${ID_ALMACEN}&desde=2024-01-01&hasta=2026-12-31`);
     assert(r.status === 200, `esperado 200, recibido ${r.status}`);
     assert(r.body?.status === 'success', `status no success`);
+  });
+
+  // 11. Auth me
+  await check('GET /auth/me responde 200 con datos del usuario', async () => {
+    const r = await request('GET', '/auth/me');
+    assert(r.status === 200, `esperado 200, recibido ${r.status}`);
+    assert(r.body?.data?.carnet === USER_CARNET, `carnet mismatch`);
   });
 
   console.log('');

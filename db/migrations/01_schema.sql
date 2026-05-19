@@ -1,21 +1,5 @@
-/* 01_schema.sql  (ejecutar dentro de Inventario_NI / Inventario_GT / etc.) */
+/* 01_schema.sql  (ejecutar dentro de Inventario_RRHH) */
 SET NOCOUNT ON;
-
-DECLARE @PAIS VARCHAR(2) = 'NI'; -- <-- CAMBIAR por DB
-
-/* ========================= ConfigSistema ========================= */
-IF OBJECT_ID('dbo.ConfigSistema','U') IS NULL
-BEGIN
-    CREATE TABLE dbo.ConfigSistema(
-        Clave VARCHAR(50) NOT NULL CONSTRAINT PK_ConfigSistema PRIMARY KEY,
-        Valor VARCHAR(100) NOT NULL
-    );
-END
-
-IF NOT EXISTS (SELECT 1 FROM dbo.ConfigSistema WHERE Clave='PAIS')
-    INSERT INTO dbo.ConfigSistema(Clave, Valor) VALUES ('PAIS', @PAIS);
-ELSE
-    UPDATE dbo.ConfigSistema SET Valor=@PAIS WHERE Clave='PAIS';
 
 /* ========================= Vista empleados activos ========================= */
 GO
@@ -33,9 +17,11 @@ BEGIN
         IdAlmacen INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Almacenes PRIMARY KEY,
         Codigo VARCHAR(20) NOT NULL,
         Nombre VARCHAR(100) NOT NULL,
+        Pais VARCHAR(2) NOT NULL DEFAULT 'NI',
         Activo BIT NOT NULL CONSTRAINT DF_Almacenes_Activo DEFAULT(1)
     );
     CREATE UNIQUE INDEX UX_Almacenes_Codigo ON dbo.Almacenes(Codigo);
+    CREATE INDEX IX_Almacenes_Pais ON dbo.Almacenes(Pais);
 END
 
 IF OBJECT_ID('dbo.Articulos','U') IS NULL
@@ -166,6 +152,78 @@ BEGIN
     );
     CREATE INDEX IX_Mov_AlmFecha ON dbo.MovimientosInventario(IdAlmacen, Fecha DESC) INCLUDE(Tipo,IdArticulo,Cantidad,LoteCodigo,FechaVencimiento,IdSolicitud,CarnetDestino);
     CREATE INDEX IX_Mov_Solicitud ON dbo.MovimientosInventario(IdSolicitud) INCLUDE(Fecha,Tipo,IdArticulo,Cantidad,LoteCodigo,FechaVencimiento);
+END
+
+/* ========================= Visibilidad: Permisos por empleado ========================= */
+IF OBJECT_ID('dbo.InvPermisoEmpleado','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.InvPermisoEmpleado (
+        IdPermiso INT IDENTITY PRIMARY KEY,
+        CarnetRecibe VARCHAR(20) NOT NULL,
+        CarnetObjetivo VARCHAR(20) NOT NULL,
+        TipoAcceso VARCHAR(10) NOT NULL DEFAULT 'ALLOW',
+        Activo BIT NOT NULL DEFAULT 1,
+        FechaInicio DATETIME NULL,
+        FechaFin DATETIME NULL,
+        CreadoPor VARCHAR(20) NOT NULL,
+        CreadoEn DATETIME NOT NULL DEFAULT GETDATE()
+    );
+    CREATE INDEX IX_Permiso_Recibe ON dbo.InvPermisoEmpleado(CarnetRecibe) INCLUDE(CarnetObjetivo,TipoAcceso,Activo,FechaInicio,FechaFin);
+END
+
+IF OBJECT_ID('dbo.InvDelegacionVisibilidad','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.InvDelegacionVisibilidad (
+        IdDelegacion INT IDENTITY PRIMARY KEY,
+        CarnetDelegante VARCHAR(20) NOT NULL,
+        CarnetDelegado VARCHAR(20) NOT NULL,
+        Activo BIT NOT NULL DEFAULT 1,
+        FechaInicio DATETIME NULL,
+        FechaFin DATETIME NULL,
+        Motivo VARCHAR(255) NULL,
+        CreadoPor VARCHAR(20) NOT NULL,
+        CreadoEn DATETIME NOT NULL DEFAULT GETDATE()
+    );
+    CREATE INDEX IX_Delegacion_Delegado ON dbo.InvDelegacionVisibilidad(CarnetDelegado) INCLUDE(CarnetDelegante,Activo,FechaInicio,FechaFin);
+END
+
+/* ========================= Evidencia de despacho ========================= */
+IF OBJECT_ID('dbo.DespachoEvidencias','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.DespachoEvidencias (
+        IdEvidencia BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_DespachoEvidencia PRIMARY KEY,
+        IdSolicitud BIGINT NOT NULL,
+        IdDetalle BIGINT NULL,
+        NombreArchivo VARCHAR(255) NOT NULL,
+        TipoArchivo VARCHAR(50) NOT NULL,
+        ContenidoBase64 VARCHAR(MAX) NOT NULL,
+        CarnetSubio VARCHAR(20) NOT NULL,
+        FechaSubida DATETIME NOT NULL DEFAULT GETDATE(),
+        CONSTRAINT FK_DespEvi_Sol FOREIGN KEY (IdSolicitud) REFERENCES dbo.Solicitudes(IdSolicitud)
+    );
+    CREATE INDEX IX_DespEvi_Solicitud ON dbo.DespachoEvidencias(IdSolicitud);
+END
+
+/* ========================= Auditoría ========================= */
+IF OBJECT_ID('dbo.AuditLogs','U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditLogs (
+        IdAudit BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT PK_AuditLogs PRIMARY KEY,
+        Fecha DATETIME NOT NULL DEFAULT GETDATE(),
+        Modulo VARCHAR(50) NOT NULL,
+        Accion VARCHAR(50) NOT NULL,
+        CarnetActor VARCHAR(20) NULL,
+        CarnetObjetivo VARCHAR(20) NULL,
+        Entidad VARCHAR(50) NULL,
+        IdEntidad VARCHAR(50) NULL,
+        Antes NVARCHAR(MAX) NULL,
+        Despues NVARCHAR(MAX) NULL,
+        Ip VARCHAR(64) NULL,
+        UserAgent VARCHAR(255) NULL
+    );
+    CREATE INDEX IX_Audit_Fecha ON dbo.AuditLogs(Fecha DESC);
+    CREATE INDEX IX_Audit_Modulo ON dbo.AuditLogs(Modulo, Accion);
+    CREATE INDEX IX_Audit_Actor ON dbo.AuditLogs(CarnetActor);
 END
 
 /* ========================= Roles ========================= */
